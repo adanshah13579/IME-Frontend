@@ -52,55 +52,7 @@ export default function Home() {
     Book an Expert
   </Link>
 
-          {/* Stylish Dropdown for selecting a professional role */}
-          <div className="relative inline-block">
-            <button
-              onClick={() => setDropdownOpen(!dropdownOpen)}
-              className="font-bold text-xl px-8 py-3 border-2 border-black rounded-full bg-white text-black hover:bg-indigo-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200 flex items-center justify-between w-80 sm:w-auto"
-            >
-              {/* Dropdown Label */}
-              <span>{selectedRole || "Select your role"}</span>
-              {/* Down Arrow Icon */}
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="w-5 h-5 ml-2"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                aria-hidden="true"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            </button>
-
-            {dropdownOpen && (
-              <div className="absolute left-0 w-full mt-2 bg-white border-2 border-black rounded-md shadow-lg z-20">
-                <ul className="text-black">
-                  <li
-                    onClick={() => handleDropdownSelect("Businessman")}
-                    className="px-6 py-3 text-lg hover:bg-gray-100 cursor-pointer transition-all duration-150"
-                  >
-                    Businessman
-                  </li>
-                  <li
-                    onClick={() => handleDropdownSelect("Lawyer")}
-                    className="px-6 py-3 text-lg hover:bg-gray-100 cursor-pointer transition-all duration-150"
-                  >
-                    Lawyer
-                  </li>
-                  <li
-                    onClick={() => handleDropdownSelect("Researcher")}
-                    className="px-6 py-3 text-lg hover:bg-gray-100 cursor-pointer transition-all duration-150"
-                  >
-                    Researcher
-                  </li>
-                </ul>
-              </div>
-            )}
-          </div>
+         
         </div>
       </div>
 

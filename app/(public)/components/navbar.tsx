@@ -1,3 +1,4 @@
+"use client"
 import {
   Navbar as NextUINavbar,
   NavbarContent,
@@ -11,6 +12,8 @@ import { button as buttonStyles } from "@nextui-org/theme";
 import { Kbd } from "@nextui-org/kbd";
 import { Link } from "@nextui-org/link";
 import { Input } from "@nextui-org/input";
+import { useRouter } from "next/navigation"; // Correct import for client-side routing
+
 
 import { link as linkStyles } from "@nextui-org/theme";
 
@@ -21,10 +24,23 @@ import clsx from "clsx";
 import { SearchIcon } from "@/components/icons";
 import imgLogo from "./ime_logo.png"
 import Image from "next/image"; 
+import Cookies from "js-cookie";
+
 
 
 
 export const Navbar = () => {
+  const router = useRouter(); // Use client-side router
+
+  const token = Cookies.get("token"); 
+
+  console.log(token);
+  
+
+  const handleLogout = () => {
+    Cookies.remove("token"); 
+    router.push("/sign-in"); 
+  };
   const searchInput = (
     <Input
       aria-label="Search"
@@ -67,7 +83,7 @@ export const Navbar = () => {
         <ul className="hidden lg:flex gap-16 justify-start ml-12">
           {siteConfig.navItems.map((item) => (
             <NavbarItem key={item.href}>
-              <NextLink
+              <Link
                 className={clsx(
                   linkStyles({ color: "foreground" }),
                   "font-medium"
@@ -76,7 +92,7 @@ export const Navbar = () => {
                 href={item.href}
               >
                 {item.label}
-              </NextLink>
+              </Link>
             </NavbarItem>
           ))}
         </ul>
@@ -86,18 +102,31 @@ export const Navbar = () => {
         className="hidden sm:flex basis-1/5 sm:basis-full"
         justify="end"
       >
-        <NavbarItem className="hidden md:flex">
-          <NextLink
-            href="/sign-in"
-            className={buttonStyles({
-              color: "primary",
-              radius: "full",
-              variant: "shadow",
-            })}
-          >
-            Sign in
-          </NextLink>
-        </NavbarItem>
+       <NavbarItem className="hidden md:flex">
+      {token ? (
+        <button
+          onClick={handleLogout}
+          className={buttonStyles({
+            color: "primary",
+            radius: "full",
+            variant: "shadow",
+          })}
+        >
+        logout
+        </button>
+      ) : (
+        <Link
+          href="/sign-in"
+          className={buttonStyles({
+            color: "primary",
+            radius: "full",
+            variant: "shadow",
+          })}
+        >
+          sign in
+        </Link>
+      )}
+    </NavbarItem>
       </NavbarContent>
 
       <NavbarContent className="sm:hidden basis-1 pl-4" justify="end">

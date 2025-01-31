@@ -30,7 +30,7 @@ export default function DoctorCard({
       <CardHeader className="pb-0 pt-2 px-5 flex-row gap-3 items-start">
         <Image
           alt="Card background"
-          className="object-cover rounded-full"
+          className="object-contain rounded-full"
           src={image}
           width={80}
         />

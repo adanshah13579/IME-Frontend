@@ -11,7 +11,7 @@ export default function IMECard({
   description,
 }: IMECardProps) {
   return (
-    <Card className="py-4 bg-gradient-to-r from-[#F4FBFF] to-[#FCFCFC]">
+    <Card className="py-4 bg-gradient-to-r from-[#F4FBFF] to-[#FCFCFC] w-[40%]">
       <CardHeader className="pb-0 pt-2 px-5 flex-col items-start">
         <IMEIcon className="w-12 h-12" />
         <h3 className="font-bold text-xl px-2">{title}</h3>

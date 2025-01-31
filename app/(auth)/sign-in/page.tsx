@@ -26,7 +26,6 @@ export default function LoginPage() {
     setSuccess("");
 
     try {
-      // Assuming req and res are available in the client (or passed through API routes)
       await loginUser(formData.email, formData.password, /* req, res */);  // Send req, res if needed from API route
       setSuccess("Login successful!");
       router.push("/doctor-search"); 

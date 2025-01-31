@@ -6,7 +6,7 @@ export const siteConfig = {
   navItems: [
     {
       label: "Post an IME",
-      href: "/",
+      href: "/http://localhost:5173/signin",
     },
     {
       label: "Search for IME's",
@@ -24,7 +24,7 @@ export const siteConfig = {
   navMenuItems: [
     {
       label: "Post an IME",
-      href: "/",
+      href: "/http://localhost:5173/signin",
     },
     {
       label: "Search for IME's",

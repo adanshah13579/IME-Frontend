@@ -1,7 +1,10 @@
-import { useState } from "react";
+"use client";
+
+import { useState, useEffect } from "react";
 import { Button } from "@nextui-org/button";
 import { Input } from "@nextui-org/input";
-import { GoogleIcon } from "@/components/icons";
+import { useRouter } from "next/navigation";
+import Cookies from "js-cookie"; // Import js-cookie
 
 export default function GetStartedModal({
   children,
@@ -13,9 +16,14 @@ export default function GetStartedModal({
   const [isOpen, setIsOpen] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const router = useRouter(); // Initialize useRouter
+  const token = Cookies.get("token"); // Check for token in cookies using js-cookie
 
-
-
+  useEffect(() => {
+    if (!token) {
+      router.push("/sign-in"); // Redirect to /signin if no token is found
+    }
+  }, [token, router]); // Only run the effect when the token or router changes
 
   const handleContinue = () => {
     setIsOpen(false); // Close modal
@@ -41,11 +49,6 @@ export default function GetStartedModal({
           <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
             {/* Logo and Name */}
             <div className="text-center mb-4">
-              <img
-                src="/your-logo.png" // Replace with your logo path
-                alt="Logo"
-                className="mx-auto mb-2"
-              />
               <h2 className="text-xl font-semibold">IME</h2>
             </div>
 
@@ -53,8 +56,7 @@ export default function GetStartedModal({
             <Button
               onPress={handleGoogleLogin}
               variant="ghost"
-              startContent={<GoogleIcon width={24} />}
-              className="w-full mb-4 flex items-center justify-center bg-red-500 text-white no-underline"
+              className="w-full mb-4 flex items-center justify-center bg-white-500 text-black no-underline"
             >
               Continue with Google
             </Button>
@@ -63,7 +65,6 @@ export default function GetStartedModal({
             <Input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              label="Name"
               placeholder="Enter your name"
               size="lg"
               className="mb-4"
@@ -71,7 +72,6 @@ export default function GetStartedModal({
             <Input
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              label="Email"
               placeholder="Enter your email"
               size="lg"
               className="mb-4"

@@ -6,18 +6,21 @@ import { Button } from "@nextui-org/button";
 import { MailIcon } from "@/components/icons";  // Removed Facebook and Google icons
 import { registerUser } from "@/app/Api/authApi.js";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function SignupPage() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
-    role: "user", // Fixed role as "user"
+    role: "user", 
     profession: "",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const router = useRouter();
+
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -32,6 +35,8 @@ export default function SignupPage() {
     try {
       await registerUser(formData);
       setSuccess("Account created successfully!");
+      router.push("/sign-in"); 
+
     } catch (err) {
       setError("Signup failed. Please try again.");
     } finally {
@@ -79,13 +84,7 @@ export default function SignupPage() {
               className="w-3/4"
               onChange={handleChange}
               required
-              startContent={
-                <MailIcon
-                  className="text-default-400 pointer-events-none flex-shrink-0"
-                  width={28}
-                  height={28}
-                />
-              }
+            
             />
 
             {/* Password Input */}

@@ -1,29 +1,25 @@
-"use client";  // Mark this file as a client component
+"use client";
 
 import { useEffect, useState } from "react";
 import Searcher from "./components/Searcher";
 import DoctorCard from "./components/DoctorCard";
-import { getDoctorProfile } from "@/app/Api/doctorApi";  // Import the API function
+import { getDoctorProfile } from "@/app/Api/doctorApi";
 
 export default function DoctorSearchPage() {
-  const [doctors, setDoctors] = useState([]);  // Ensure doctors is an array
-  const [loading, setLoading] = useState(true);  // State to handle loading state
-  const [error, setError] = useState("");  // State to handle errors
+  const [doctors, setDoctors] = useState([]); 
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
+  // Fetch all doctors initially
   useEffect(() => {
     const fetchDoctors = async () => {
       try {
-        const response = await getDoctorProfile(); // Fetch doctors list from the API
-        if (response && response.success) {
-          // Extract doctors data from the response
-          const doctorsData = response.data.doctors;
-          if (Array.isArray(doctorsData)) {
-            setDoctors(doctorsData);  // Set the doctors data if it's an array
-          } else {
-            setError("Invalid data format: expected an array of doctors.");
-          }
+        const response = await getDoctorProfile();
+        if (response?.success) {
+          const doctorsData = response.data.doctors || [];
+          setDoctors(doctorsData);
         } else {
-          setError("Failed to fetch doctors. Please try again.");
+          setError("Failed to fetch doctors.");
         }
       } catch (err) {
         console.error("Error fetching doctors:", err);
@@ -34,7 +30,7 @@ export default function DoctorSearchPage() {
     };
 
     fetchDoctors();
-  }, []);  // Run only once when the component mounts
+  }, []);
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
@@ -43,7 +39,8 @@ export default function DoctorSearchPage() {
     <section className="bg-white dark:bg-gray-900">
       <div className="px-4 mx-auto max-w-screen-xl sm:py-6 lg:px-6">
         <div className="max-w-screen mb-8 lg:mb-10">
-          <Searcher />
+          {/* Pass setDoctors to Searcher */}
+          <Searcher setDoctors={setDoctors} />
         </div>
         <div className="space-y-2 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-4 md:space-y-0">
           {doctors.length > 0 ? (
@@ -52,14 +49,14 @@ export default function DoctorSearchPage() {
                 key={index} 
                 name={doctor.name} 
                 field={doctor.fieldOfStudy} 
-                experience={parseInt(doctor.experience.split(" ")[0], 10)} // Assuming "10 years" format
+                experience={parseInt(doctor.experience.split(" ")[0], 10)}
                 location={doctor.location} 
                 status={doctor.workStatus} 
-                rating={4} // You can adjust if you have rating logic
-                completedIMEs={658} // Adjust this as per your actual data
+                rating={doctor.rating || 4}  
+                completedIMEs={doctor.completedIMEs || 658}  
                 startingPrice={doctor.income} 
-                image={doctor.image || "/default-image.png"} // Fallback to a default image if none exists
-                slug={doctor._id}
+                image={doctor.image || "/default-doctor.png"}  
+                slug={doctor.userId}
               />
             ))
           ) : (

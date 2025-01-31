@@ -2,10 +2,11 @@ import axios from "axios";
 import { baseuri } from "./baseuri";
 import Cookies from "js-cookie";  
 
-// Get Doctor Profile
 export const getDoctorProfile = async () => {
   try {
-    const token = Cookies.get("token");  // Retrieve token from cookies
+    const token = Cookies.get("token");
+    console.log(token);
+      // Retrieve token from cookies
 
     if (!token) {
       throw new Error("No token found. Please log in first.");

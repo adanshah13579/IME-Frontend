@@ -1,1 +1,1 @@
-export const baseuri = "http://192.168.1.32:5000";
+export const baseuri = "http://192.168.1.12:5000";

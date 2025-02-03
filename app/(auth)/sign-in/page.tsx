@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Input } from "@nextui-org/input";
 import { Button } from "@nextui-org/button";
-import { MailIcon } from "@/components/icons";
+import { MailIcon, GoogleIcon, FacebookIcon } from "@/components/icons";
 import { loginUser } from "@/app/Api/authApi.js";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -26,7 +26,7 @@ export default function LoginPage() {
     setSuccess("");
 
     try {
-      await loginUser(formData.email, formData.password, /* req, res */);  // Send req, res if needed from API route
+      await loginUser(formData.email, formData.password);
       setSuccess("Login successful!");
       router.push("/doctor-search"); 
     } catch (err) {
@@ -39,20 +39,18 @@ export default function LoginPage() {
   return (
     <section className="bg-white dark:bg-gray-900">
       <div className="grid lg:h-screen lg:grid-cols-2">
-        {/* Left Section */}
         <div className="flex items-center justify-center px-4 py-6 lg:py-0 sm:px-0 h-screen">
           <form
             className="flex flex-col items-center justify-center w-full max-w-md space-y-6"
             onSubmit={handleSubmit}
           >
-            <h1 className="text-4xl font-bold text-gray-900 dark:text-white text-center">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white text-center">
               Login
             </h1>
-            <span className="text-base text-gray-500 text-center">
+            <span className="text-sm text-gray-500 text-center">
               Eliminate the stress of managing IME’s Today!
             </span>
 
-            {/* Email Input */}
             <Input
               type="email"
               name="email"
@@ -63,16 +61,15 @@ export default function LoginPage() {
               className="w-3/4"
               onChange={handleChange}
               required
-              startContent={
-                <MailIcon
-                  className="text-default-400 pointer-events-none flex-shrink-0"
-                  width={28}
-                  height={28}
-                />
-              }
+              // startContent={
+              //   <MailIcon
+              //     className="text-default-400 pointer-events-none flex-shrink-0"
+              //     width={28}
+              //     height={28}
+              //   />
+              // }
             />
 
-            {/* Password Input */}
             <Input
               type="password"
               name="password"
@@ -85,7 +82,6 @@ export default function LoginPage() {
               required
             />
 
-            {/* Login Button */}
             <Button
               type="submit"
               size="lg"
@@ -96,11 +92,25 @@ export default function LoginPage() {
               {loading ? "Logging In..." : "Login Now"}
             </Button>
 
-            {/* Error & Success Messages */}
             {error && <p className="text-red-500">{error}</p>}
             {success && <p className="text-green-500">{success}</p>}
 
-            {/* Already have an account? */}
+            <Button
+              size="lg"
+              radius="md"
+              className="w-2/4 bg-white text-black flex items-center justify-center gap-2 "
+            >
+              <GoogleIcon width={24} height={24} /> Login with Google
+            </Button>
+
+            <Button
+              size="lg"
+              radius="md"
+              className="w-2/4 bg-white text-black flex items-center justify-center gap-2"
+            >
+              <FacebookIcon width={24} height={24} /> Login with Facebook
+            </Button>
+
             <div className="text-center">
               <span className="text-gray-500">Don't have an account? </span>
               <Link href="/signup" className="text-blue-500">
@@ -110,7 +120,6 @@ export default function LoginPage() {
           </form>
         </div>
 
-        {/* Right Section with Background Image */}
         <div className="items-center justify-center px-4 py-6 bg-gradient-to-bl from-[#9181F4] to-[#5038ED] lg:py-0 sm:px-0 relative overflow-hidden lg:flex hidden">
           <img
             src="/bg-signin.svg"

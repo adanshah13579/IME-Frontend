@@ -26,14 +26,17 @@ export default function DoctorCard({
   slug,
 }: DoctorCardProps) {
   return (
-    <Card className="py-4 bg-gradient-to-r  from-[#FCFCFC] to-[#F4FBFF]   border-2 border-[#D3DAE2] shadow-[#D3DAE2]">
+    <Card className="py-4 bg-gradient-to-r from-[#FCFCFC] to-[#F4FBFF] border-2 border-[#D3DAE2] shadow-[#D3DAE2]">
       <CardHeader className="pb-0 pt-2 px-5 flex-row gap-3 items-start">
-        <Image
-          alt="Card background"
-          className="object-contain rounded-full"
-          src={image}
-          width={80}
-        />
+        <div className="w-20 h-20 overflow-hidden rounded-full flex-shrink-0">
+          <Image
+            alt="Card background"
+            className="object-cover w-full h-full"
+            src={image}
+            width={80}
+            height={80}
+          />
+        </div>
         <div className="flex flex-col">
           <h3 className="font-bold text-xl pl-1">{name}</h3>
           <p className="text-sm pl-1">{field}</p>
@@ -44,10 +47,10 @@ export default function DoctorCard({
           <p className="flex flex-row items-center">
             <DotIcon
               className="w-3 h-2.5 m-1"
-              fill={status === "active" ? "#238D4D" : "#E84242"}
+              fill={status === "active" ||"Active" ? "#238D4D" : "#E84242"}
             />
             <span className="ml-1 text-base">
-              {status === "active" ? "Open for work" : "Closed for work"}
+              {status === "active" ||"Active" ? "Open for work" : "Closed for work"}
             </span>
           </p>
           <p className="text-sm flex flex-row items-center pl-0.5 mt-1">
@@ -86,18 +89,17 @@ export default function DoctorCard({
           color="primary"
           size="md"
           radius="sm"
-          className="w-full font-bold bg-black hover:bg-gray-100 text-white  py-2 px-4 border border-black rounded shadow"
+          className="w-full font-bold bg-black hover:bg-gray-100 text-white hover:text-black py-2 px-4 border border-black rounded shadow"
         >
           <Link href={`/ime-preview`}>Hire now</Link>
         </Button>
         <Button
-        
-        
           size="md"
           radius="sm"
-          className="w-full font-bold bg-white hover:bg-gray-100 text-gray-800  py-2 px-4 border border-black rounded shadow"
+          className="w-full font-bold bg-white hover:bg-gray-100 text-gray-800 py-2 px-4 border border-black rounded shadow"
         >
-<Link href={`/doctor/${slug}`}>Recent Work</Link>        </Button>
+          <Link href={`/doctor/${slug}`}>Recent Work</Link>
+        </Button>
       </CardFooter>
     </Card>
   );

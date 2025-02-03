@@ -1,10 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@nextui-org/button";
 import { Input } from "@nextui-org/input";
-import { useRouter } from "next/navigation";
-import Cookies from "js-cookie"; // Import js-cookie
 import { GoogleIcon } from "@/components/icons";
 
 export default function GetStartedModal({
@@ -16,19 +14,12 @@ export default function GetStartedModal({
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const router = useRouter();
-  const token = Cookies.get("token");
-
-  
+  const [profession, setProfession] = useState(""); // Added profession state
 
   const handleContinue = () => {
-    if (!token) {
-      router.push("/sign-in"); // Redirect to sign-in if no token
-      return; // Stop further execution
-    }
+    // Pass name and profession to the parent via onContinue callback
+    onContinue({ name, profession });
     setIsOpen(false); // Close modal
-    onContinue(); // Trigger parent callback
   };
 
   const handleGoogleLogin = () => {
@@ -62,7 +53,7 @@ export default function GetStartedModal({
               Continue with Google
             </Button>
 
-            {/* Name and Email Input */}
+            {/* Name Input */}
             <Input
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -70,10 +61,12 @@ export default function GetStartedModal({
               size="lg"
               className="mb-4"
             />
+
+            {/* Profession Input */}
             <Input
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter your email"
+              value={profession}
+              onChange={(e) => setProfession(e.target.value)}
+              placeholder="Enter your profession"
               size="lg"
               className="mb-4"
             />

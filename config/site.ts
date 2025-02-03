@@ -14,7 +14,7 @@ export const siteConfig = {
     },
     {
       label: "Our Pricing",
-      href: "/",
+      href: "/Appointment",
     },
     {
       label: "About Us",

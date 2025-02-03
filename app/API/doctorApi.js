@@ -4,18 +4,11 @@ import Cookies from "js-cookie";
 
 export const getDoctorProfile = async () => {
   try {
-    const token = Cookies.get("token");
-    console.log(token);
-      // Retrieve token from cookies
-
-    if (!token) {
-      throw new Error("No token found. Please log in first.");
-    }
+    
 
     const response = await axios.get(`${baseuri}/api/doctor/get-profile`, {
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`,  // Include token in Authorization header
       },
     });
 

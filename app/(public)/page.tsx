@@ -40,7 +40,7 @@ export default function Home() {
         <div className="flex justify-center xl:justify-start gap-3 mt-6">
   <Link
     
-    href={`/sign-in`}
+    href={`/doctor-search`}
     className={buttonStyles({
       color: "primary",
       size: "lg",

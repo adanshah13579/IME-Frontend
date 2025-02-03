@@ -1,127 +1,107 @@
-"use client";
-
 import React, { useState } from "react";
-import { Box, IconButton, Divider, TextField, Button, Typography } from "@mui/material";
+import {
+  Box,
+  IconButton,
+  Divider,
+  TextField,
+  Button,
+  Typography,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+} from "@mui/material";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
 import SentimentSatisfiedAltIcon from "@mui/icons-material/SentimentSatisfiedAlt";
 import MicIcon from "@mui/icons-material/Mic";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 
-interface CommentBoxProps {
-  sendMessage: (message: string) => void; // Function passed as prop to send messages
+interface OfferDetails {
+  name: string;
+  profession: string;
+  price: string;
+  schedule: string;
+  estimatedHours: string;
+  description: string;
 }
 
-const CommentBox: React.FC<CommentBoxProps> = ({ sendMessage }) => {
-  const [message, setMessage] = useState("");
+interface CommentBoxProps {
+  sendMessage: (message: { type: string; message: string }) => void;
+  sendOffer: (offer: { type: string } & OfferDetails) => void;
+}
 
-  // Handle message change
-  const handleMessageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setMessage(e.target.value);
-  };
+const CommentBox: React.FC<CommentBoxProps> = ({ sendMessage, sendOffer }) => {
+  const [message, setMessage] = useState<string>("");
+  const [offerModalOpen, setOfferModalOpen] = useState<boolean>(false);
+  const [offerDetails, setOfferDetails] = useState<OfferDetails>({
+    name: "",
+    profession: "",
+    price: "",
+    schedule: "",
+    estimatedHours: "",
+    description: "",
+  });
 
-  // Handle Send button click
   const handleSendMessage = () => {
     if (message.trim()) {
-      sendMessage(message); // Call the sendMessage function passed as prop
-      setMessage(""); // Clear the input field after sending
+      sendMessage({ type: "text", message });
+      setMessage("");
     }
   };
 
+  const handleOpenOfferModal = () => setOfferModalOpen(true);
+  const handleCloseOfferModal = () => setOfferModalOpen(false);
+
+  const handleSendOffer = () => {
+    sendOffer({ type: "offer", ...offerDetails });
+    setOfferModalOpen(false);
+    setOfferDetails({ name: "", profession: "", price: "", schedule: "", estimatedHours: "", description: "" });
+  };
+
   return (
-    <Box
-      sx={{
-        position: "relative",
-        bottom: 0,
-        width: "100%",
-        p: 2,
-        backgroundColor: "white",
-        display: "flex",
-        flexDirection: "column",
-        borderRadius: "10px",
-        maxWidth: { lg: "80%" },
-        border: "1px solid #ccc",
-      }}
-    >
-      {/* Icons Row */}
+    <Box sx={{
+      position: "relative", bottom: 0, width: "100%", padding: "10px",
+      backgroundColor: "white", display: "flex", flexDirection: "column",
+      borderRadius: "10px", maxWidth: { lg: "80%" }, border: "1px solid #ccc"
+    }}>
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        {/* Left Side Icons */}
-        <Box sx={{ display: "flex", gap: 1 }}>
-          <IconButton sx={{ color: "black" }}>
-            <AttachFileIcon />
-          </IconButton>
-          <IconButton sx={{ color: "black" }}>
-            <SentimentSatisfiedAltIcon />
-          </IconButton>
-          <IconButton sx={{ color: "black" }}>
-            <MicIcon />
-          </IconButton>
+        <Box sx={{ display: "flex", gap: "10px" }}>
+          <IconButton sx={{ color: "black" }}><AttachFileIcon /></IconButton>
+          <IconButton sx={{ color: "black" }}><SentimentSatisfiedAltIcon /></IconButton>
+          <IconButton sx={{ color: "black" }}><MicIcon /></IconButton>
         </Box>
-
-        {/* Right Side Text and Add Icon */}
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          <Typography variant="body2" sx={{ color: "black" }}>
-            Create Offer
-          </Typography>
-          <IconButton sx={{ color: "black" }}>
-            <AddCircleIcon />
-          </IconButton>
+        <Box sx={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <Typography variant="body1" sx={{ color: "black" }}>Create Offer</Typography>
+          <IconButton sx={{ color: "black" }} onClick={handleOpenOfferModal}><AddCircleIcon /></IconButton>
         </Box>
       </Box>
-
-      {/* Input Field & Send Button */}
-      <Box sx={{ display: "flex", alignItems: "center", mt: 1, gap: 1 }}>
+      <Box sx={{ display: "flex", alignItems: "center", marginTop: "5px", gap: "10px" }}>
         <TextField
-          fullWidth
-          variant="outlined"
-          placeholder="Type a message"
-          value={message}
-          onChange={handleMessageChange}
-          InputProps={{
-            sx: {
-              height: 40,
-              color: "black",
-              backgroundColor: "#f5f5f5",
-              borderRadius: "12px",
-              "& .MuiOutlinedInput-notchedOutline": {
-                borderColor: "#ccc",
-              },
-              "&:hover .MuiOutlinedInput-notchedOutline": {
-                borderColor: "black",
-              },
-              "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                borderColor: "black",
-              },
-            },
-          }}
-          inputProps={{
-            style: { fontSize: "12px" },
-          }}
+          fullWidth variant="outlined" placeholder="Type a message" value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          InputProps={{ sx: { height: "35px", backgroundColor: "#f5f5f5" } }}
+          sx={{ borderRadius: "12px", paddingLeft: "10px", paddingRight: "10px" }}
         />
-
-        {/* Send Button */}
-        <Button
-          variant="contained"
-          onClick={handleSendMessage} // Call sendMessage when clicked
-          disabled={!message.trim()} // Disable when empty
-          sx={{
-            backgroundColor: "black",
-            color: "white",
-            borderRadius: "12px",
-            height: 40,
-            minWidth: 100,
-            fontSize: "12px",
-            textTransform: "none",
-            "&:hover": {
-              backgroundColor: "#333",
-            },
-          }}
-        >
-          Send
-        </Button>
+        <Button variant="contained" sx={{ backgroundColor: "black", color: "white" }} onClick={handleSendMessage}>Send</Button>
       </Box>
-
-      {/* Divider */}
-      <Divider sx={{ mt: 2, backgroundColor: "#ccc" }} />
+      <Divider sx={{ marginTop: "10px", backgroundColor: "#ccc" }} />
+      <Dialog open={offerModalOpen} onClose={handleCloseOfferModal}>
+        <DialogTitle>Create an Offer</DialogTitle>
+        <DialogContent>
+          {Object.keys(offerDetails).map((key) => (
+            <TextField
+              key={key} label={key.charAt(0).toUpperCase() + key.slice(1)}
+              fullWidth value={offerDetails[key as keyof OfferDetails]}
+              onChange={(e) => setOfferDetails({ ...offerDetails, [key]: e.target.value })}
+              sx={{ marginBottom: 2 }}
+            />
+          ))}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseOfferModal}>Cancel</Button>
+          <Button onClick={handleSendOffer} variant="contained" color="primary">Send Offer</Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

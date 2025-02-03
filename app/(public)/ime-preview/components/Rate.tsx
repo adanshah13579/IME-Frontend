@@ -1,55 +1,20 @@
+import { useState } from "react";
 import { Input } from "@nextui-org/input";
 import { BarChart, Card } from "@tremor/react";
 
 const data = [
-  {
-    date: "Jan 23",
-    "This Year": 68560,
-  },
-  {
-    date: "Feb 23",
-    "This Year": 70320,
-  },
-  {
-    date: "Mar 23",
-    "This Year": 80233,
-  },
-  {
-    date: "Apr 23",
-    "This Year": 55123,
-  },
-  {
-    date: "May 23",
-    "This Year": 56000,
-  },
-  {
-    date: "Jun 23",
-    "This Year": 100000,
-  },
-  {
-    date: "Jul 23",
-    "This Year": 85390,
-  },
-  {
-    date: "Aug 23",
-    "This Year": 80100,
-  },
-  {
-    date: "Sep 23",
-    "This Year": 75090,
-  },
-  {
-    date: "Oct 23",
-    "This Year": 71080,
-  },
-  {
-    date: "Nov 23",
-    "This Year": 61210,
-  },
-  {
-    date: "Dec 23",
-    "This Year": 60143,
-  },
+  { date: "Jan 23", "This Year": 68560 },
+  { date: "Feb 23", "This Year": 70320 },
+  { date: "Mar 23", "This Year": 80233 },
+  { date: "Apr 23", "This Year": 55123 },
+  { date: "May 23", "This Year": 56000 },
+  { date: "Jun 23", "This Year": 100000 },
+  { date: "Jul 23", "This Year": 85390 },
+  { date: "Aug 23", "This Year": 80100 },
+  { date: "Sep 23", "This Year": 75090 },
+  { date: "Oct 23", "This Year": 71080 },
+  { date: "Nov 23", "This Year": 61210 },
+  { date: "Dec 23", "This Year": 60143 },
 ];
 
 function valueFormatter(number: number) {
@@ -64,7 +29,19 @@ function valueFormatter(number: number) {
   return formatter.format(number);
 }
 
-export default function Rate({ onContinue }: { onContinue: () => void }) {
+export default function Rate({ onContinue }: { onContinue: (rate: number) => void }) {
+  const [rate, setRate] = useState<number | string>(""); // State to hold the input value
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setRate(e.target.value); // Update the state when the input changes
+  };
+
+  const handleContinue = () => {
+    if (rate !== "") {
+      onContinue(Number(rate)); // Pass the input value to the parent component
+    }
+  };
+
   return (
     <div className="flex flex-row gap-4 items-center my-6">
       <div className="sm:mx-auto sm:max-w-lg w-full">
@@ -104,6 +81,8 @@ export default function Rate({ onContinue }: { onContinue: () => void }) {
         </p>
         <Input
           type="number"
+          value={rate}
+          onChange={handleInputChange} // Update the state on change
           placeholder="Enter your budget"
           labelPlacement="outside"
           size="lg"
@@ -116,7 +95,7 @@ export default function Rate({ onContinue }: { onContinue: () => void }) {
         />
         {/* Continue Button */}
         <button
-          onClick={onContinue}
+          onClick={handleContinue} // Call handleContinue when clicked
           className="mt-4 bg-blue-500 text-white px-6 py-2 rounded-full"
         >
           Continue

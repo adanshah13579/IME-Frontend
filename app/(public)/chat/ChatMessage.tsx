@@ -1,17 +1,16 @@
-"use client";
-
 import React, { useState } from "react";
 import { Box, Typography, Avatar } from "@mui/material";
 
 interface ChatMessageProps {
   avatar: string;
-  name: string;
-  time: string;
   message: string;
+  time: string;
+  senderType: string;
 }
 
-const ChatMessage: React.FC<ChatMessageProps> = ({ avatar, name, time, message }) => {
+const ChatMessage: React.FC<ChatMessageProps> = ({ avatar, message, time, senderType }) => {
   const [hover, setHover] = useState(false);
+  const isUser = senderType === "user";
 
   return (
     <Box
@@ -20,47 +19,65 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ avatar, name, time, message }
         alignItems: "flex-start",
         gap: 1.5,
         mb: 2,
-        flexDirection: { xs: "column", sm: "row" },
+        backgroundColor: "white",
+        flexDirection: isUser ? "row-reverse" : "row",
+        justifyContent: isUser ? "flex-end" : "flex-start",
       }}
     >
-      <Avatar src={avatar} sx={{ width: 32, height: 32 }} />
-
-      <Box sx={{ flex: 1 }}>
+      <Avatar 
+        src={avatar} 
+        alt={senderType} 
+        sx={{ width: 25, height: 25 }} 
+      />
+      <Box sx={{ flex: 1, textAlign: isUser ? "right" : "left" }}>
         <Typography
           sx={{
-            fontSize: { xs: 12, sm: 14 },
+            fontSize: { xs: 10, sm: 12 },
             fontWeight: "bold",
             color: "black",
             display: "flex",
             alignItems: "center",
             gap: 1,
+            justifyContent: isUser ? "flex-end" : "flex-start",
           }}
         >
-          {name}
-          <Typography sx={{ fontSize: { xs: 10, sm: 12 }, color: "gray" }}>{time}</Typography>
+          <Typography sx={{ fontSize: { xs: 10, sm: 12 }, color: "black" }}>
+            {time || "Unknown Time"} 
+          </Typography>
+          {senderType || "Unknown User"} 
+         
         </Typography>
 
-        {/* Message Box */}
         <Box
           sx={{
             display: "inline-flex",
             alignItems: "center",
-            marginTop: 1,
+            marginTop: "10px",
             justifyContent: "space-between",
-            bgcolor: hover ? "#3F8CFF" : "#E4E4E41A",
+            bgcolor: "#E4E4E41A",
             p: 1.5,
             borderRadius: 2,
-            maxWidth: { xs: "100%", sm: "75%" },
+            position: "relative",
             transition: "background 0.3s",
+            maxWidth: { xs: "100%", sm: "75%" },
+            textAlign: "left",
+            ml: isUser ? "auto" : 0,
+            mr: isUser ? 0 : "auto",
+            "&:hover": {
+              bgcolor: "#3F8CFF",
+            },
           }}
           onMouseEnter={() => setHover(true)}
           onMouseLeave={() => setHover(false)}
         >
-          {/* Message Text */}
           <Typography
             sx={{
               fontSize: { xs: 12, sm: 14 },
-              color: hover ? "white" : "black",
+              marginTop: "2px",
+              color: "black",
+              "&:hover": {
+                color: "white",
+              },
               transition: "color 0.3s",
               wordBreak: "break-word",
             }}

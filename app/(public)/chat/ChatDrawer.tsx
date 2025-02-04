@@ -92,8 +92,15 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ setChatState, recentChats, setn
                   </Typography>
                 </Box>
                 <Typography variant="body2" sx={{ fontSize: "14px", color: "grey", textAlign: "left", marginTop: "4px" }}>
-                  {chat.lastMessage === "offer" ? "Sent you an offer card" : truncateMessage(chat.lastMessage)}
-                </Typography>
+  {(() => {
+    try {
+      const messageObj = JSON.parse(chat.lastMessage || "{}");
+      return messageObj.type === "offer" ? "Sent you an offer" : truncateMessage(chat.lastMessage);
+    } catch {
+      return truncateMessage(chat.lastMessage);
+    }
+  })()}
+</Typography>
               </Box>
             </ListItem>
           ))

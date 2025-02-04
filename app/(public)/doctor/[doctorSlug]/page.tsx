@@ -138,8 +138,8 @@ export default function DoctorPage() {
                   radius="sm"
                   className="w-full font-bold bg-white hover:bg-gray-100 text-gray-800 py-2 px-4 border border-black rounded shadow"
                 >
-                  <Link href={`/chat`}>Chat now</Link>
-                </Button>
+<Link href={`/chat?doctorId=${doctorSlug}`}>Chat now</Link>
+</Button>
               </div>
   
               <div className="flex flex-col gap-4 pt-2 px-0 border-b pb-6">

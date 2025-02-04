@@ -9,7 +9,7 @@ export default function DoctorSearchPage() {
   const [doctors, setDoctors] = useState([]); 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
+  
   // Fetch all doctors initially
   useEffect(() => {
     const fetchDoctors = async () => {
@@ -17,7 +17,7 @@ export default function DoctorSearchPage() {
         const response = await getDoctorProfile();
         if (response?.success) {
           const doctorsData = response.data.doctors || [];
-          setDoctors(doctorsData);
+          setDoctors(doctorsData); 
         } else {
           setError("Failed to fetch doctors.");
         }
@@ -39,7 +39,7 @@ export default function DoctorSearchPage() {
     <section className="bg-white dark:bg-gray-900">
       <div className="px-4 mx-auto max-w-screen-xl sm:py-6 lg:px-6">
         <div className="max-w-screen mb-8 lg:mb-10">
-          {/* Pass setDoctors to Searcher */}
+          {/* Pass setDoctors to Searcher to allow filtering doctors */}
           <Searcher setDoctors={setDoctors} />
         </div>
         <div className="space-y-2 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-4 md:space-y-0">
@@ -60,7 +60,7 @@ export default function DoctorSearchPage() {
               />
             ))
           ) : (
-            <div>No doctors available.</div>
+            <div>No doctors found for your search.</div> // More user-friendly message
           )}
         </div>
       </div>

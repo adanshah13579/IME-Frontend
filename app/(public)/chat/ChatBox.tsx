@@ -32,11 +32,12 @@ const Chatbox: React.FC<ChatboxProps> = ({ setChatState, selectedUser, name }) =
   const [messages, setMessages] = useState<Message[]>([]);
   const [socket, setSocket] = useState<Socket | null>(null);
 
-  const token = Cookies.get("token");
+  
 
+  const token = Cookies.get("token");
   useEffect(() => {
     if (!selectedUser?.id) return;
-
+  
     const newSocket = io("ws://localhost:3001?token=" + token, {
       transports: ["websocket"],
       forceNew: true,
@@ -46,65 +47,56 @@ const Chatbox: React.FC<ChatboxProps> = ({ setChatState, selectedUser, name }) =
         Authorization: `Bearer ${token}`,
       },
     });
-
+  
     setSocket(newSocket);
-
+  
     newSocket.on("connect", () => {
       console.log("Connected to WebSocket server");
       newSocket.emit("get_recent_messages", { userId: selectedUser.id });
     });
-
+  
     newSocket.on("receive_message", (data: any) => {
       console.log("Received message data:", data);
-
+  
       if (data.type === "recentChats") {
         const filteredMessages = data.recentMessages.recentMessages.filter(
           (msg: any) => msg.sender === selectedUser.id || msg.receiver === selectedUser.id
         );
+  
+        const formattedMessages = filteredMessages.map((msg: any) => ({
+          senderType: msg.senderType,
+          createdAt: msg.createdAt
+            ? formatDistanceToNow(new Date(msg.createdAt), { addSuffix: true })
+            : "Just now",
+          message: msg.message,
+          offerDetails: msg.typeOfMessage === "offer" ? JSON.parse(msg.message) : null,
+          offerId: msg.offerId || null, 
 
-        const formattedMessages = filteredMessages.map((msg: any) => {
-          let parsedOffer = null;
-
-          if (msg.typeOfMessage === "offer" && msg.message) {
-            try {
-              parsedOffer = JSON.parse(msg.message);
-            } catch (err) {
-              console.error("Error parsing offer message:", err);
-            }
-          }
-
-          return {
-            senderType: msg.senderType,
-            createdAt: msg.createdAt
-              ? formatDistanceToNow(new Date(msg.createdAt), { addSuffix: true })
-              : "Just now",
-            message: parsedOffer ? parsedOffer : msg.message,
-            offerDetails: parsedOffer || null,
-          };
-        });
-
+        }));
+  
         setMessages(formattedMessages);
       }
     });
-
-    newSocket.on("offer_sent", (data: any) => {
-      console.log("Offer sent confirmation received:", data);
-
-      const newOfferMessage = {
-        senderType: "user", 
+  
+    newSocket.on("newChatMessage", (data: any) => {
+      console.log("New chat message received:", data);
+  
+      const newMessage = {
+        senderType: data.senderType,
         createdAt: formatDistanceToNow(new Date(), { addSuffix: true }),
-        message: data.offerDetails, 
-        offerDetails: data.offerDetails,
-        offerId: data.offerId, 
+        message: data.message,
+        offerDetails: null,
+        offerId: data.offerId || null,
       };
-
-      setMessages((prevMessages) => [...prevMessages, newOfferMessage]);
+  
+      setMessages((prevMessages) => [...prevMessages, newMessage]);
     });
-
+  
     return () => {
       newSocket.disconnect();
     };
   }, [token, selectedUser]);
+  
 
   const sendMessage = (message: string | { message: string }) => {
     if (!socket) {
@@ -197,7 +189,7 @@ const Chatbox: React.FC<ChatboxProps> = ({ setChatState, selectedUser, name }) =
           backgroundColor: "white",
         }}
       >
-        <CommentBox sendMessage={sendMessage} sendOffer={sendOffer} />
+            <CommentBox sendMessage={sendMessage} sendOffer={sendOffer} />
       </Box>
     </Box>
   );

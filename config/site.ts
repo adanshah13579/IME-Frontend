@@ -13,8 +13,8 @@ export const siteConfig = {
       href: `/doctor-search`,
     },
     {
-      label: "Our Pricing",
-      href: "/Appointment",
+      label: "your Appoinments",
+      href: "/appointment",
     },
     {
       label: "About Us",

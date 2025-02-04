@@ -7,6 +7,8 @@ import Cookies from "js-cookie";
 import { formatDistanceToNow } from "date-fns";
 import ChatDrawer from "./ChatDrawer";
 import Chatbox from "./ChatBox";
+import { useSearchParams } from "next/navigation";
+
 
 interface Chat {
   _id: string;
@@ -27,9 +29,23 @@ const ChatsystemPage: React.FC = () => {
   const [selectedUser, setSelectedUser] = useState<SelectedUser | null>(null);
   const [name, setName] = useState<string>("");
 
+  const searchParams = useSearchParams();
+  const doctorId = searchParams.get("doctorId");
+
+  console.log("doctorid",doctorId);
+  
+
   const token = Cookies.get("token");
   const userId = "6796afec77b3bdaa687a0911";
   const userType = "user";
+
+  useEffect(() => {
+    if (doctorId && !selectedUser) {
+      setSelectedUser({ id: doctorId });
+      setChatOpen(true);
+    }
+  }, [doctorId, selectedUser]);
+
 
   useEffect(() => {
     if (!token) return;

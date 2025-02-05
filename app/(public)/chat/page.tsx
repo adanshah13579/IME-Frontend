@@ -1,14 +1,12 @@
 'use client'
+
 import { Box } from "@mui/material";
 import { useState, useEffect } from "react";
-
 import { io, Socket } from "socket.io-client";
 import Cookies from "js-cookie";
-import { formatDistanceToNow } from "date-fns";
+import { useSearchParams } from "next/navigation";
 import ChatDrawer from "./ChatDrawer";
 import Chatbox from "./ChatBox";
-import { useSearchParams } from "next/navigation";
-
 
 interface Chat {
   _id: string;
@@ -32,13 +30,23 @@ const ChatsystemPage: React.FC = () => {
   const searchParams = useSearchParams();
   const doctorId = searchParams.get("doctorId");
 
-  console.log("doctorid",doctorId);
-  
-
   const token = Cookies.get("token");
-  const userId = "6796afec77b3bdaa687a0911";
+
+  let userId = "";  // Default empty string for userId
+
+  if (token) {
+    // Decode the JWT token manually
+    const base64Url = token.split('.')[1];  // Get the payload part of the JWT token
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');  // Fix URL encoding
+
+    const decodedData = JSON.parse(atob(base64));  // Decode the base64 string and parse as JSON
+    userId = decodedData.userId;  // Assuming 'userId' is in the token payload
+  }
+
   const userType = "user";
 
+
+  // Automatically select the doctor if a doctorId is passed
   useEffect(() => {
     if (doctorId && !selectedUser) {
       setSelectedUser({ id: doctorId });
@@ -46,10 +54,10 @@ const ChatsystemPage: React.FC = () => {
     }
   }, [doctorId, selectedUser]);
 
-
   useEffect(() => {
     if (!token) return;
-    
+
+    // Initialize socket connection
     const newSocket: Socket = io("ws://localhost:3001?token=" + token, {
       transports: ["websocket"],
       forceNew: true,
@@ -62,15 +70,15 @@ const ChatsystemPage: React.FC = () => {
 
     setSocket(newSocket);
 
+    // Fetch chat list as soon as socket is connected
     newSocket.on("connect", () => {
       console.log("Connected to WebSocket server");
       newSocket.emit("get_chat_list", { userId, userType });
     });
 
+    // Listen for received messages and update chat list
     newSocket.on("receive_message", (data: { type: string; chatlist: Chat[] }) => {
       if (data.type === "chatlist") {
-        console.log("chatdrawer data", data);
-        
         const formattedChats = data.chatlist.map((chat) => ({
           _id: chat._id,
           name: chat.name,
@@ -78,7 +86,6 @@ const ChatsystemPage: React.FC = () => {
           lastMessage: chat.lastMessage,
           lastMessageTime: chat.lastMessageTime,
         }));
-
         setRecentChats(formattedChats);
       }
     });

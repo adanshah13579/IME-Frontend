@@ -160,9 +160,8 @@ const CommentBox: React.FC<CommentBoxProps> = ({ sendMessage, sendOffer }) => {
     <Button 
       onClick={handleCloseOfferModal} 
       sx={{
-        bgcolor: 'black', 
-        color: 'white', 
-        '&:hover': { bgcolor: 'grey.800' }, 
+        bgcolor: 'white', 
+        color: 'black', 
         height: 40,
         minWidth: 120, // Reduced width
         border: '1px solid black', // Ensure the border is visible
@@ -172,7 +171,7 @@ const CommentBox: React.FC<CommentBoxProps> = ({ sendMessage, sendOffer }) => {
     </Button>
     <Button 
       onClick={handleSendOffer} 
-      variant="contained" 
+      
       sx={{
         bgcolor: 'white', 
         color: 'black', 

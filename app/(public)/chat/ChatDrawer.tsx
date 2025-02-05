@@ -8,12 +8,12 @@ interface Chat {
   _id: string;
   name: string;
   image?: string;
-  lastMessage?: string;
+  lastMessage: string;
   lastMessageTime?: string;
 }
 
 interface ChatDrawerProps {
-  setChatState: (id: string) => void;
+  setChatState: (chatId: string) => void;
   recentChats: Chat[];
   setname: (name: string) => void;
 }
@@ -28,14 +28,20 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ setChatState, recentChats, setn
     setname(chat.name);
   };
 
-  const truncateMessage = (message?: string, maxLength: number = 30): string => {
-    return message && message.length > maxLength ? message.substring(0, maxLength) + "..." : message || "";
+  const truncateMessage = (message: string, maxLength = 30): string => {
+    if (message && message.length > maxLength) {
+      return message.substring(0, maxLength) + "...";
+    }
+    return message || "";
   };
 
   return (
     <Box
       sx={{
-        width: { xs: "100%", sm: 320 },
+        width: {
+          xs: "100%", // Full width on small screens
+          sm: 320, // Fixed width for larger screens
+        },
         height: "100vh",
         borderRadius: "10px",
         backgroundColor: "white",
@@ -43,7 +49,9 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ setChatState, recentChats, setn
         padding: "16px",
         overflowY: "auto",
         boxShadow: "0px 4px 16px rgba(0, 0, 0, 0.1)",
-        "&::-webkit-scrollbar": { display: "none" },
+        "&::-webkit-scrollbar": {
+          display: "none",
+        },
       }}
     >
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
@@ -73,7 +81,9 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ setChatState, recentChats, setn
                 margin: "10px 0",
                 borderRadius: "12px",
                 padding: "10px",
-                "&:hover": { backgroundColor: "#e0e0e0" },
+                "&:hover": {
+                  backgroundColor: "#e0e0e0",
+                },
               }}
               onClick={() => handleChatSelection(chat)}
             >
@@ -82,6 +92,7 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ setChatState, recentChats, setn
                 alt={chat.name}
                 style={{ width: 47, height: 47, borderRadius: "50%", marginRight: 5 }}
               />
+
               <Box sx={{ display: "flex", flexDirection: "column", width: "100%" }}>
                 <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <Typography variant="body2" sx={{ fontSize: { xs: "14px", sm: "16px" }, fontWeight: 500 }}>
@@ -91,16 +102,17 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ setChatState, recentChats, setn
                     {chat.lastMessageTime ? formatDistanceToNow(new Date(chat.lastMessageTime)) + " ago" : ""}
                   </Typography>
                 </Box>
+
                 <Typography variant="body2" sx={{ fontSize: "14px", color: "grey", textAlign: "left", marginTop: "4px" }}>
-  {(() => {
-    try {
-      const messageObj = JSON.parse(chat.lastMessage || "{}");
-      return messageObj.type === "offer" ? "Sent you an offer" : truncateMessage(chat.lastMessage);
-    } catch {
-      return truncateMessage(chat.lastMessage);
-    }
-  })()}
-</Typography>
+                  {(() => {
+                    try {
+                      const messageObj = JSON.parse(chat.lastMessage || "{}");
+                      return messageObj.type === "offer" ? "offer" : truncateMessage(chat.lastMessage);
+                    } catch {
+                      return truncateMessage(chat.lastMessage);
+                    }
+                  })()}
+                </Typography>
               </Box>
             </ListItem>
           ))

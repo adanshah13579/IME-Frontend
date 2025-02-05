@@ -1,3 +1,4 @@
+'use client'
 import React, { useEffect, useState } from "react";
 import { Box, Typography, IconButton } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -8,6 +9,7 @@ import { formatDistanceToNow } from "date-fns";
 import ChatMessage from "./ChatMessage";
 import CommentBox from "./CommentBox";
 import OfferCard from "./offerdetails";
+
 
 interface User {
   id: string;
@@ -31,6 +33,9 @@ interface ChatboxProps {
 const Chatbox: React.FC<ChatboxProps> = ({ setChatState, selectedUser, name }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [socket, setSocket] = useState<Socket | null>(null);
+  const [userData, setUserData] = useState(null);
+
+  const [doctorData, setDockerData] = useState(null);
 
   
 
@@ -56,18 +61,21 @@ const Chatbox: React.FC<ChatboxProps> = ({ setChatState, selectedUser, name }) =
     });
   
     newSocket.on("receive_message", (data: any) => {
-      console.log("Received message data:", data);
   
       if (data.type === "recentChats") {
         const filteredMessages = data.recentMessages.recentMessages.filter(
           (msg: any) => msg.sender === selectedUser.id || msg.receiver === selectedUser.id
         );
   
+        setUserData(data.recentMessages.user)
+        
+        setDockerData(data.recentMessages.doctor[0])
+
         const formattedMessages = filteredMessages.map((msg: any) => ({
           senderType: msg.senderType,
           createdAt: msg.createdAt
-            ? formatDistanceToNow(new Date(msg.createdAt), { addSuffix: true })
-            : "Just now",
+          ? formatDistanceToNow(new Date(msg.createdAt))
+          : "Just now",
           message: msg.message,
           offerDetails: msg.typeOfMessage === "offer" ? JSON.parse(msg.message) : null,
           offerId: msg.offerId || null, 
@@ -79,11 +87,10 @@ const Chatbox: React.FC<ChatboxProps> = ({ setChatState, selectedUser, name }) =
     });
   
     newSocket.on("newChatMessage", (data: any) => {
-      console.log("New chat message received:", data);
   
       const newMessage = {
         senderType: data.senderType,
-        createdAt: formatDistanceToNow(new Date(), { addSuffix: true }),
+        createdAt: formatDistanceToNow(new Date() ),
         message: data.message,
         offerDetails: null,
         offerId: data.offerId || null,
@@ -168,12 +175,16 @@ const Chatbox: React.FC<ChatboxProps> = ({ setChatState, selectedUser, name }) =
                   senderType={msg.senderType}
                   time={msg.createdAt}
                   selectedUserId={selectedUser.id}
+                  headDetails={msg.senderType=="user" ?  userData : doctorData }
+
                 />
               ) : (
                 <ChatMessage
                   senderType={msg.senderType}
                   time={msg.createdAt}
                   message={msg.message}
+                  headDetails={msg.senderType=="user" ?  userData : doctorData }
+
                 />
               )}
             </div>

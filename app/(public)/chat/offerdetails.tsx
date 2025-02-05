@@ -1,4 +1,3 @@
-'use client'
 import React, { useState, useEffect } from "react";
 import {
   Box,
@@ -31,9 +30,13 @@ interface OfferCardProps {
   time?: string;
   avatar?: string;
   selectedUserId: string;
+  headDetails: {
+    name: string;
+    image: string;
+  };
 }
 
-const OfferCard: React.FC<OfferCardProps> = ({ offerId, senderType, time, avatar, selectedUserId }) => {
+const OfferCard: React.FC<OfferCardProps> = ({ offerId, senderType, time, selectedUserId, headDetails }) => {
   const [offer, setOffer] = useState<Offer | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -112,52 +115,56 @@ const OfferCard: React.FC<OfferCardProps> = ({ offerId, senderType, time, avatar
         justifyContent: isDoctor ? "flex-end" : "flex-start",
       }}
     >
-      <Avatar src={avatar} alt={senderType} sx={{ width: 25, height: 25 }} />
+      <Avatar src={headDetails?.image} alt={senderType} sx={{ width: 25, height: 25 }} />
       <Box sx={{ flex: 1, display: "flex", flexDirection: "column", alignItems: isDoctor ? "flex-end" : "flex-start" }}>
         <Typography sx={{ fontSize: { xs: 10, sm: 12 }, fontWeight: "bold", color: "black", display: "flex", alignItems: "center", gap: 1 }}>
-        {senderType || "Unknown User"}
+          {headDetails?.name || "Unknown User"}
           <Typography sx={{ fontSize: { xs: 10, sm: 12 }, color: "black" }}>{time || "Unknown Time"}</Typography>
-         
         </Typography>
 
         <Card sx={{ marginTop: "10px", padding: "15px", boxShadow: 3, borderRadius: "8px", backgroundColor: "#f9f9f9", maxWidth: "350px", width: "100%", alignSelf: isDoctor ? "flex-end" : "flex-start" }}>
-          <CardContent>
-            <Typography variant="h6" sx={{ fontWeight: "bold", fontSize: "16px", color: "#333" }}>
-              {offer?.name}
-            </Typography>
-            <Typography variant="body2" color="textSecondary" sx={{ marginTop: "5px", fontWeight: 500 }}>
-              Profession: <strong>{offer?.profession}</strong>
-            </Typography>
-            <Typography variant="body2" color="textSecondary" sx={{ marginTop: "5px" }}>
-              Price: <strong>${offer?.price}</strong>
-            </Typography>
-            <Typography variant="body2" color="textSecondary" sx={{ marginTop: "5px" }}>
-              Schedule: <strong>{offer?.schedule}</strong>
-            </Typography>
-            <Typography variant="body2" color="textSecondary" sx={{ marginTop: "10px", color: "#555" }}>
-              Description: {offer?.description}
-            </Typography>
+  <CardContent>
+    <Typography variant="h6" sx={{ fontWeight: "bold", color: "black", marginBottom: "10px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      Offer
+      {offer?.status && (
+       <span style={{ color: offer.status === "Accepted" ? "green" : offer.status === "Rejected" ? "red" : "black", fontSize: "16px", fontWeight: "bold" }}>
+           Status:{offer.status}
+        </span>
+      )}
+    </Typography>
 
-            {offer?.status && (
-              <>
-                <Typography sx={{ marginTop: "10px", fontWeight: "bold", color: offer.status === "Accepted" ? "green" : offer.status === "Rejected" ? "red" : "black" }}>
-                  {offer.status}
-                </Typography>
-                {offer.status === "Active" && !isDoctor && (
-                  <Box sx={{ marginTop: "15px", display: "flex", justifyContent: "space-between" }}>
-                    <Button variant="contained" color="primary" sx={{ textTransform: "none", borderRadius: "20px", padding: "8px 15px", boxShadow: 2 }} onClick={() => handleOpenModal("accept")}>
-                      Accept
-                    </Button>
-                    <Button variant="outlined" color="error" sx={{ textTransform: "none", borderRadius: "20px", padding: "8px 15px", boxShadow: 2 }} onClick={() => handleOpenModal("reject")}>
-                      Reject
-                    </Button>
-                  </Box>
-                )}
-              </>
-            )}
-          </CardContent>
-        </Card>
+    <Typography variant="body2" sx={{ marginTop: "5px", fontWeight: 500, color: "grey" }}>
+      Name: <span style={{ color: "black" }}>{offer?.name}</span>
+    </Typography>
+    <Typography variant="body2" sx={{ marginTop: "5px", fontWeight: 500, color: "grey" }}>
+      Profession: <span style={{ color: "black" }}>{offer?.profession}</span>
+    </Typography>
+    <Typography variant="body2" sx={{ marginTop: "5px", color: "grey" }}>
+      Price: <span style={{ color: "black" }}>${offer?.price}</span>
+    </Typography>
+    <Typography variant="body2" sx={{ marginTop: "5px", color: "grey" }}>
+      Schedule: <span style={{ color: "black" }}>{offer?.schedule}</span>
+    </Typography>
+    <Typography variant="body2" sx={{ marginTop: "10px", color: "grey" }}>
+      Description: <span style={{ color: "black" }}>{offer?.description}</span>
+    </Typography>
+
+    {offer?.status === "Active" && !isDoctor && (
+      <Box sx={{ marginTop: "15px", display: "flex", justifyContent: "space-between" }}>
+        <Button sx={{ textTransform: "none", borderRadius: "10px", padding: "5px 15px", boxShadow: 2, backgroundColor: "white", color: "black", border: "1px solid black" }} onClick={() => handleOpenModal("accept")}>
+          Accept
+        </Button>
+        <Button sx={{ textTransform: "none", borderRadius: "10px", padding: "5px 15px", boxShadow: 2, backgroundColor: "white", color: "black", border: "1px solid black" }} onClick={() => handleOpenModal("reject")}>
+          Reject
+        </Button>
       </Box>
+    )}
+  </CardContent>
+</Card>
+
+
+      </Box>
+
       <Dialog open={modalOpen} onClose={handleCloseModal}>
         <DialogTitle>Confirm Action</DialogTitle>
         <DialogContent>

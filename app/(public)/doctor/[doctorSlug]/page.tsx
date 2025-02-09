@@ -5,6 +5,7 @@ import { useParams } from "next/navigation"; // Use useParams for App Router
 import { Button } from "@nextui-org/button";
 import { Image } from "@nextui-org/image";
 import Link from "next/link";
+import axios from "axios";
 import {
   LocationIcon,
   StarIcon,
@@ -26,6 +27,7 @@ export default function DoctorPage() {
   const params = useParams(); // Use useParams to get dynamic route parameters
   const doctorSlug = params.doctorSlug as string; // Extract slug from params
   const [doctor, setDoctor] = useState<Doctor | null>(null);
+  const [offers, setOffers] = useState([]);
   const [error, setError] = useState<string | null>(null);
 
   console.log("slug", doctorSlug);
@@ -35,20 +37,26 @@ export default function DoctorPage() {
 
     const fetchDoctorData = async () => {
       try {
-        const res = await fetch(`${baseuri}/api/doctor/getprofile/${doctorSlug}`);
-        if (!res.ok) throw new Error("Doctor not found");
-
-        const data = await res.json();
-        console.log("Doctor data:", data);
-
-        setDoctor(data);
+        const res = await axios.get(`${baseuri}/api/doctor/getprofile/${doctorSlug}`);
+        setDoctor(res.data);
       } catch (error) {
         console.error("Error fetching doctor data:", error);
         setError("Failed to fetch doctor details");
       }
     };
 
+    const fetchOffers = async () => {
+      try {
+        const res = await axios.get(`${baseuri}/api/doctor/doctor-offers/${doctorSlug}`);
+        setOffers(res.data.offers);
+      } catch (error) {
+        console.error("Error fetching offers:", error);
+        setError("Failed to fetch offers");
+      }
+    };
+
     fetchDoctorData();
+    fetchOffers();
   }, [doctorSlug]); // Re-run effect when slug changes
 
   if (error) return <div>{error}</div>;
@@ -178,23 +186,15 @@ export default function DoctorPage() {
           <h1 className="text-4xl font-medium">About Me</h1>
           <div>{doctor.aboutMe}</div>
         </div>
-        <div className="flex flex-col sm:flex-row gap-9 overflow-x-auto mb-6 flex-wrap p-10 overflow-y-auto">
-          <IMECard
-            title="IME Test 1"
-            category="Cardiology"
-            description="This is a description for IME test 1. It contains detailed information about the test and its purpose."
-          />
-          <IMECard
-            title="IME Test 2"
-            category="Orthopedics"
-            description="It explains the procedure and expected outcomes."
-          />
-          <IMECard
-            title="IME Test 3"
-            category="Pediatrics"
-            description="This is a description for IME test 3. It includes information about the test's relevance in pediatric care."
-          />
-        </div>
+        <div className="flex flex-col sm:flex-row gap-9 overflow-x-auto mb-6 flex-wrap p-10">
+            {offers.length > 0 ? (
+              offers.map((offer) => (
+                <IMECard key={offer._id} name={offer.name} description={offer.description} reviews={offer.review} />
+              ))
+            ) : (
+              <p>No completed offers with reviews found.</p>
+            )}
+          </div>
       </article>
     </div>
   </main>

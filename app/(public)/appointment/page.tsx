@@ -43,7 +43,7 @@ const OrdersPage: React.FC = () => {
   const [orderData, setOrderData] = useState<Order[]>([]);
   const [openModal, setOpenModal] = useState(false);
   const [rating, setRating] = useState<number>(0);
-  const [description, setDescription] = useState<string>("");
+  const [review, setreview] = useState<string>("");
   const [selectedOfferId, setSelectedOfferId] = useState<string>("");
 
   useEffect(() => {
@@ -86,14 +86,14 @@ const OrdersPage: React.FC = () => {
   };
 
   const handleDescriptionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setDescription(event.target.value);
+    setreview(event.target.value);
   };
 
   const handleSubmitRating = async () => {
     try {
       const response = await axios.put(`${baseuri}/api/offer/submit-rating/${selectedOfferId}`, {
         rating,
-        description,
+        review,
       });
       console.log("Rating submitted:", response.data);
 
@@ -105,7 +105,7 @@ const OrdersPage: React.FC = () => {
 
       setOpenModal(false);
       setRating(0);
-      setDescription("");
+      setreview("");
     } catch (error) {
       console.error("Error submitting rating:", error);
     }
@@ -196,8 +196,8 @@ const OrdersPage: React.FC = () => {
             inputProps={{ min: 1, max: 5 }}
           />
           <TextField
-            label="Description"
-            value={description}
+            label="Review"
+            value={review}
             onChange={handleDescriptionChange}
             fullWidth
             margin="normal"

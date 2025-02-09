@@ -7,7 +7,7 @@ import { IMEIcon } from "@/components/icons";
 
 import { IMECardProps } from "@/types";
 
-export default function IMECard({ title, category, description }: IMECardProps) {
+export default function IMECard({ name, description,reviews }: IMECardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   // Check if the description is longer than 200 characters
@@ -21,7 +21,7 @@ export default function IMECard({ title, category, description }: IMECardProps) 
     >
       <CardHeader className="pb-0 pt-2 px-5 flex-col items-start">
         <IMEIcon className="w-12 h-12" />
-        <h3 className="font-bold text-xl px-2">{title}</h3>
+        <h3 className="font-bold text-xl px-2">{name}</h3>
       </CardHeader>
       <CardBody
         className={`overflow-visible py-1 px-7 flex flex-col gap-4 ${
@@ -29,7 +29,7 @@ export default function IMECard({ title, category, description }: IMECardProps) 
         }`}
       >
         <div className="flex flex-col">
-          <p className="text-sm text-gray-500">{category}</p>
+          <p className="text-sm text-gray-500">{reviews}</p>
           <p className="text-sm text-gray-700">
             {isExpanded || !isDescriptionLong ? description : `${description.slice(0, 200)}...`}
           </p>

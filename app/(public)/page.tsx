@@ -56,7 +56,7 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="hidden xl:inline-block w-full max-w-3xl justify-self-end z-10 relative align-bottom" style={{ top: 0 }}>
+      <div className="hidden 1xl:inline-block w-full max-w-3xl justify-self-end z-10 relative align-bottom" style={{ top: 0 }}>
         <Image
           src="/professional_young_businessman.png"
           alt="IME's Made Easy"

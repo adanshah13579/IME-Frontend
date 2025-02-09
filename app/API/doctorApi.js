@@ -47,7 +47,6 @@ export const getDoctorOffers = async () => {
 export const getDoctorById = async (doctorId) => {
   try {
 
-    console.log("doctorId: " +doctorId);
     
     const response = await fetch(`${baseuri}/api/doctor/${doctorId}`);
     if (!response.ok) {

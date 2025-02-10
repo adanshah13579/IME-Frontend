@@ -95,7 +95,7 @@ export default function LoginPage() {
             {error && <p className="text-red-500">{error}</p>}
             {success && <p className="text-green-500">{success}</p>}
 
-            <Button
+            {/* <Button
               size="lg"
               radius="md"
               className="w-2/4 bg-white text-black flex items-center justify-center gap-2 "
@@ -109,10 +109,10 @@ export default function LoginPage() {
               className="w-2/4 bg-white text-black flex items-center justify-center gap-2"
             >
               <FacebookIcon width={24} height={24} /> Login with Facebook
-            </Button>
+            </Button> */}
 
             <div className="text-center">
-              <span className="text-gray-500">Don't have an account? </span>
+              <span className="text-gray-700">Don't have an account? </span>
               <Link href="/signup" className="text-blue-500">
                 Sign up
               </Link>

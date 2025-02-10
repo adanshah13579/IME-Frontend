@@ -6,6 +6,7 @@ import Searcher from "./components/Searcher";
 import DoctorCard from "./components/DoctorCard";
 import { getDoctorProfile } from "@/app/Api/doctorApi";
 import { baseuri } from "@/app/Api/baseuri";
+import Cookies from "js-cookie";
 
 // Define the Doctor interface
 interface Doctor {
@@ -30,16 +31,28 @@ export default function DoctorSearchPage() {
   useEffect(() => {
     const fetchDoctors = async () => {
       try {
+
+        const token = Cookies.get("token"); // Get token from cookies
+
+        if (!token) {
+          setError("Unauthorized: No token found.");
+          setLoading(false);
+          return;
+        }
         const response = await getDoctorProfile();
         if (response?.success) {
           let doctorsData: Doctor[] = response.data.doctors || [];
 
-          // Fetch additional details for each doctor (ratings & completed orders)
           const updatedDoctors = await Promise.all(
             doctorsData.map(async (doctor) => {
               try {
                 const res = await axios.get(
-                  `${baseuri}/api/doctor/doctor-offers/${doctor.userId}`
+                  `${baseuri}/api/doctor/doctor-offers/${doctor.userId}`, {
+                    headers: {
+                      "Content-Type": "application/json",
+                      headers: { Authorization: `Bearer ${token}` },
+                    },
+                  }
                 );
 
                 // Extract offers and calculate completed orders & average rating
@@ -107,7 +120,6 @@ export default function DoctorSearchPage() {
     <section className="bg-white dark:bg-gray-900">
       <div className="px-4 mx-auto max-w-screen-xl sm:py-6 lg:px-6">
         <div className="max-w-screen mb-8 lg:mb-10">
-          {/* Pass setDoctors to Searcher to allow filtering doctors */}
           <Searcher setDoctors={setDoctors} />
         </div>
         <div className="space-y-2 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-4 md:space-y-0">

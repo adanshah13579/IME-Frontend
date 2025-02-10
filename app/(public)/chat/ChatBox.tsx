@@ -8,7 +8,6 @@ import Cookies from "js-cookie";
 import { formatDistanceToNow } from "date-fns";
 import OfferCard from "./offerdetails";
 
-// Define interfaces for better type safety
 interface SelectedUser {
   id: string;
   name?: string;

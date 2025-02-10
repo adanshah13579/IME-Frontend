@@ -29,6 +29,8 @@ export default function DoctorPage() {
   const [doctor, setDoctor] = useState<Doctor | null>(null);
   const [offers, setOffers] = useState([]);
   const [error, setError] = useState<string | null>(null);
+  const [loadingOffers, setLoadingOffers] = useState(true);
+
 
   // State for completed IMEs count and rating
   const [completedIMEs, setCompletedIMEs] = useState<number>(0);
@@ -51,20 +53,21 @@ export default function DoctorPage() {
     };
 
     const fetchOffers = async () => {
+      setLoadingOffers(true);
       try {
         const res = await axios.get(`${baseuri}/api/doctor/doctor-offers/${doctorSlug}`);
-        const offersData = res.data.offers;
-
+        const offersData = res.data.offers || [];
         setOffers(offersData);
-
-        // Calculate the number of completed IMEs
-        const completedCount = offersData.filter((offer: any) => offer.status === "Completed").length;
-        setCompletedIMEs(completedCount);
+        setCompletedIMEs(offersData.filter((offer: any) => offer.status === "Completed").length);
       } catch (error) {
         console.error("Error fetching offers:", error);
-        setError("Failed to fetch offers");
+        setOffers([]);
+      } finally {
+        setLoadingOffers(false);
       }
     };
+    
+    
 
     fetchDoctorData();
     fetchOffers();
@@ -102,7 +105,7 @@ export default function DoctorPage() {
                   <p className="flex flex-row items-center mb-2">
                     <DotIcon
                       className="w-2 h-2 m-1"
-                      fill={doctor.workStatus === "active" ? "#238D4D" : "#E84242"}
+                      fill={doctor.workStatus === "Active" || "active" ? "#238D4D" : "#E84242"}
                     />
                     <span className="ml-1 text-base">
                       {doctor.workStatus === "active" ? "Open for work" : "Closed for work"}
@@ -198,18 +201,23 @@ export default function DoctorPage() {
             <div>{doctor.aboutMe}</div>
           </div>
 
-          {/* Offers Section - Independent Rendering */}
-          <div className="flex flex-col sm:flex-row gap-9 overflow-x-auto mb-6 flex-wrap p-10">
-            {offers.length > 0 ? (
-              offers.map((offer) => (
-                <IMECard key={offer._id} name={offer.name} description={offer.description} reviews={offer.review} />
-              ))
-            ) : (
-              <div className="flex justify-center items-center w-full">
-                <p className="text-lg text-gray-500 font-semibold">No completed offers yet.</p>
-              </div>
-            )}
-          </div>
+         {/* Offers Section */}
+<div className="flex flex-col sm:flex-row gap-9 overflow-x-auto mb-6 flex-wrap p-10">
+{loadingOffers ? (
+  <div className="flex justify-center items-center w-full">
+    <p className="text-lg text-gray-500 font-semibold">Loading offers...</p>
+  </div>
+) : offers.length > 0 ? (
+  offers.map((offer) => (
+    <IMECard key={offer._id} name={offer.name} description={offer.description} reviews={offer.review} />
+  ))
+) : (
+  <div className="flex justify-center items-center w-full">
+    <p className="text-lg text-gray-500 font-semibold">No completed offer till now</p>
+  </div>
+)}
+</div>
+
 
         </article>
       </div>

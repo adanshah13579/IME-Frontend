@@ -80,6 +80,8 @@ const ChatsystemPage: React.FC = () => {
     newSocket.on("receive_message", (data: { type: string; chatlist: Chat[] }) => {
       console.log("Received chatlist data:", data);  // Log the received chatlist
       if (data.type === "chatlist") {
+        console.log("Tahir "+ data);
+        
         const formattedChats = data.chatlist.map((chat) => ({
           _id: chat._id,
           name: chat.name,

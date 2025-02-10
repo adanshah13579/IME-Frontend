@@ -91,7 +91,7 @@ export default function DoctorCard({
           radius="sm"
           className="w-full font-bold bg-black hover:bg-gray-100 text-white hover:text-black py-2 px-4 border border-black rounded shadow"
         >
-          <Link href={`/ime-preview`}>Hire now</Link>
+          <Link href={`/ime-preview/${slug}`}>Hire now</Link>
         </Button>
         <Button
           size="md"

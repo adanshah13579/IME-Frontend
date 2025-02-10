@@ -16,10 +16,7 @@ export const siteConfig = {
       label: "your Appoinments",
       href: "/appointment",
     },
-    {
-      label: "About Us",
-      href: "/about",
-    },
+    
   ],
   navMenuItems: [
     {

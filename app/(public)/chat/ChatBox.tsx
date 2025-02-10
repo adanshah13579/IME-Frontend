@@ -1,49 +1,58 @@
-'use client'
 import React, { useEffect, useState } from "react";
 import { Box, Typography, IconButton } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-
+import ChatMessage from "./Chatmessage";
+import Commentbox from "./Commentbox";
 import { io, Socket } from "socket.io-client";
 import Cookies from "js-cookie";
 import { formatDistanceToNow } from "date-fns";
-import ChatMessage from "./ChatMessage";
-import CommentBox from "./CommentBox";
 import OfferCard from "./offerdetails";
 
-
-interface User {
+// Define interfaces for better type safety
+interface SelectedUser {
   id: string;
   name?: string;
 }
 
-interface Message {
-  senderType: string;
-  createdAt: string;
-  message: string | object;
-  offerDetails: object | null;
-  offerId?: string;
-}
-
 interface ChatboxProps {
   setChatState: () => void;
-  selectedUser: User;
-  name: User;
+  selectedUser: SelectedUser | null;
+  name: { name?: string };
+}
+
+interface Message {
+  senderType: "user" | "doctor";
+  createdAt: string;
+  message: string | object;
+  offerDetails?: object | null;
+  offerId?: string | null;
+}
+
+interface ReceivedMessage {
+  type: "recentChats" | "newChatMessage";
+  senderType: "user" | "doctor";
+  message: string;
+  senderId?: string;
+  createdAt?: string;
+  recentMessages?: {
+    recentMessages: Message[];
+    user: object;
+    doctor: object[];
+  };
 }
 
 const Chatbox: React.FC<ChatboxProps> = ({ setChatState, selectedUser, name }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [socket, setSocket] = useState<Socket | null>(null);
-  const [userData, setUserData] = useState(null);
-
-  const [doctorData, setDockerData] = useState(null);
-
-  
+  const [userData, setUserData] = useState<object | null>(null);
+  const [doctorData, setDoctorData] = useState<object | null>(null);
 
   const token = Cookies.get("token");
+
   useEffect(() => {
     if (!selectedUser?.id) return;
-  
-    const newSocket = io("ws://localhost:3001?token=" + token, {
+
+    const newSocket: Socket = io(`ws://localhost:3001?token=${token}`, {
       transports: ["websocket"],
       forceNew: true,
       reconnectionAttempts: 5,
@@ -52,58 +61,82 @@ const Chatbox: React.FC<ChatboxProps> = ({ setChatState, selectedUser, name }) =
         Authorization: `Bearer ${token}`,
       },
     });
-  
+
     setSocket(newSocket);
-  
+
     newSocket.on("connect", () => {
       console.log("Connected to WebSocket server");
       newSocket.emit("get_recent_messages", { userId: selectedUser.id });
     });
-  
-    newSocket.on("receive_message", (data: any) => {
-  
-      if (data.type === "recentChats") {
+
+    newSocket.on("receive_message", (data: ReceivedMessage) => {
+      console.log("Received message:", data);
+
+      if (data.type === "recentChats" && data.recentMessages) {
         const filteredMessages = data.recentMessages.recentMessages.filter(
-          (msg: any) => msg.sender === selectedUser.id || msg.receiver === selectedUser.id
+          (msg) => msg.senderType === "user" || msg.senderType === "doctor"
         );
-  
-        setUserData(data.recentMessages.user)
-        
-        setDockerData(data.recentMessages.doctor[0])
 
-        const formattedMessages = filteredMessages.map((msg: any) => ({
-          senderType: msg.senderType,
-          createdAt: msg.createdAt
-          ? formatDistanceToNow(new Date(msg.createdAt))
-          : "Just now",
-          message: msg.message,
-          offerDetails: msg.typeOfMessage === "offer" ? JSON.parse(msg.message) : null,
-          offerId: msg.offerId || null, 
+        setUserData(data.recentMessages.user);
+        setDoctorData(data.recentMessages.doctor[0]);
 
-        }));
-  
+        const formattedMessages = filteredMessages.map((msg) => {
+          let parsedOffer: object | null = null;
+
+          if (typeof msg.message === "string") {
+            try {
+              parsedOffer = JSON.parse(msg.message);
+            } catch (err) {
+              console.error("Error parsing offer message:", err);
+            }
+          }
+
+          return {
+            senderType: msg.senderType,
+            createdAt: msg.createdAt
+              ? formatDistanceToNow(new Date(msg.createdAt))
+              : "Just now",
+            message: parsedOffer ? parsedOffer : msg.message,
+            offerDetails: parsedOffer || null,
+            offerId: msg.offerId || null,
+          };
+        });
+
         setMessages(formattedMessages);
+      } 
+      
+      // Handle new real-time messages
+      else if (data.type === "newChatMessage") {
+        const newMessage: Message = {
+          senderType: data.senderType,
+          createdAt: formatDistanceToNow(new Date(), { addSuffix: true }),
+          message: data.message,
+          offerDetails: null,
+          offerId: null,
+        };
+
+        setMessages((prevMessages) => [...prevMessages, newMessage]);
       }
     });
-  
-    newSocket.on("newChatMessage", (data: any) => {
-  
-      const newMessage = {
-        senderType: data.senderType,
-        createdAt: formatDistanceToNow(new Date() ),
-        message: data.message,
-        offerDetails: null,
-        offerId: data.offerId || null,
+
+    newSocket.on("offer_sent", (data: { offerDetails: object; offerId: string }) => {
+      console.log("Offer sent confirmation received:", data);
+
+      const newOfferMessage: Message = {
+        senderType: "user",
+        createdAt: formatDistanceToNow(new Date(), { addSuffix: true }),
+        message: data.offerDetails,
+        offerDetails: data.offerDetails,
+        offerId: data.offerId,
       };
-  
-      setMessages((prevMessages) => [...prevMessages, newMessage]);
+
+      setMessages((prevMessages) => [...prevMessages, newOfferMessage]);
     });
-  
+
     return () => {
       newSocket.disconnect();
     };
   }, [token, selectedUser]);
-  
 
   const sendMessage = (message: string | { message: string }) => {
     if (!socket) {
@@ -128,7 +161,7 @@ const Chatbox: React.FC<ChatboxProps> = ({ setChatState, selectedUser, name }) =
     }
 
     const offerDetails = {
-      receiverId: selectedUser.id,
+      receiverId: selectedUser?.id,
       offerData,
     };
 
@@ -154,7 +187,7 @@ const Chatbox: React.FC<ChatboxProps> = ({ setChatState, selectedUser, name }) =
         }}
       >
         <Box sx={{ display: { xs: "flex", sm: "none" }, marginRight: "10px" }}>
-          <IconButton sx={{ color: "black" }} onClick={() => setChatState()}>
+          <IconButton sx={{ color: "black" }} onClick={setChatState}>
             <ArrowBackIcon />
           </IconButton>
         </Box>
@@ -162,6 +195,7 @@ const Chatbox: React.FC<ChatboxProps> = ({ setChatState, selectedUser, name }) =
           {name?.name || "User"}
         </Typography>
       </Box>
+
       <Box sx={{ flex: 1, padding: "20px 10px", overflowY: "auto" }}>
         {messages.length === 0 ? (
           <Typography>No messages yet...</Typography>
@@ -169,22 +203,20 @@ const Chatbox: React.FC<ChatboxProps> = ({ setChatState, selectedUser, name }) =
           messages.map((msg, index) => (
             <div key={index}>
               {msg.offerDetails ? (
-                <OfferCard 
-                  offerDetails={msg.offerDetails} 
-                  offerId={msg.offerId} 
+                <OfferCard
+                  offerDetails={msg.offerDetails}
+                  offerId={msg.offerId || ""}
                   senderType={msg.senderType}
                   time={msg.createdAt}
-                  selectedUserId={selectedUser.id}
-                  headDetails={msg.senderType=="user" ?  userData : doctorData }
-
+                  selectedUserId={selectedUser?.id || ""}
+                  headDetails={msg.senderType === "user" ? userData : doctorData}
                 />
               ) : (
                 <ChatMessage
                   senderType={msg.senderType}
                   time={msg.createdAt}
-                  message={msg.message}
-                  headDetails={msg.senderType=="user" ?  userData : doctorData }
-
+                  message={msg.message as string}
+                  headDetails={msg.senderType === "user" ? userData : doctorData}
                 />
               )}
             </div>
@@ -200,7 +232,7 @@ const Chatbox: React.FC<ChatboxProps> = ({ setChatState, selectedUser, name }) =
           backgroundColor: "white",
         }}
       >
-            <CommentBox sendMessage={sendMessage} sendOffer={sendOffer} />
+        <Commentbox sendMessage={sendMessage} sendOffer={sendOffer} />
       </Box>
     </Box>
   );

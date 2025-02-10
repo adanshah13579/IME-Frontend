@@ -1,11 +1,24 @@
-import { Card, Divider, Switch } from "@tremor/react";
+"use client";
+
+import { Card } from "@tremor/react";
 import { Button } from "@nextui-org/button";
 import { useState } from "react";
 import DatePicker from "react-datepicker"; // Import DatePicker
 import "react-datepicker/dist/react-datepicker.css"; // Import the styles
 
-export default function Schedule() {
-  const [selectedDate, setSelectedDate] = useState(null);
+export default function Schedule({ onContinue }: { onContinue: (data: { rate: number; name: string; profession: string; schedule: Date | null }) => void }) {
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null); // State to hold the selected date
+
+  const handleContinue = () => {
+    if (selectedDate) {
+      onContinue({
+        rate: 100, // Replace with the actual rate from your context or props
+        name: "John Doe", // Replace with the actual name
+        profession: "Doctor", // Replace with the actual profession
+        schedule: selectedDate,
+      });
+    }
+  };
 
   return (
     <div className="flex flex-col gap-1 items-center my-6">
@@ -17,7 +30,6 @@ export default function Schedule() {
         </Card>
       </div>
 
-    
       {/* Date Picker */}
       <div className="flex flex-col items-center gap-2">
         <h3 className="text-xl">Select Date & Time</h3>
@@ -30,7 +42,8 @@ export default function Schedule() {
         />
       </div>
 
-      <Button color="primary" size="md" radius="full" className="w-90 mt-4">
+      {/* Continue Button */}
+      <Button color="primary" size="md" radius="full" className="w-90 mt-4" onClick={handleContinue}>
         Continue
       </Button>
     </div>

@@ -70,7 +70,7 @@ const ChatsystemPage: React.FC = () => {
 
     setSocket(newSocket);
 
-    // Fetch chat list as soon as socket is connected
+    // Log connection status
     newSocket.on("connect", () => {
       console.log("Connected to WebSocket server");
       newSocket.emit("get_chat_list", { userId, userType });
@@ -78,6 +78,7 @@ const ChatsystemPage: React.FC = () => {
 
     // Listen for received messages and update chat list
     newSocket.on("receive_message", (data: { type: string; chatlist: Chat[] }) => {
+      console.log("Received chatlist data:", data);  // Log the received chatlist
       if (data.type === "chatlist") {
         const formattedChats = data.chatlist.map((chat) => ({
           _id: chat._id,
@@ -86,14 +87,20 @@ const ChatsystemPage: React.FC = () => {
           lastMessage: chat.lastMessage,
           lastMessageTime: chat.lastMessageTime,
         }));
-        setRecentChats(formattedChats);
+        setRecentChats(formattedChats);  // Update state with the received chat list
       }
     });
 
+    // Clean up on unmount
     return () => {
       newSocket.disconnect();
     };
   }, [token, userId, userType]);
+
+  // Log the recentChats state every time it updates
+  useEffect(() => {
+    console.log("Recent chats updated:", recentChats); // Log state change
+  }, [recentChats]);
 
   const handleChatSelection = (chatId: string) => {
     setSelectedUser({ id: chatId });

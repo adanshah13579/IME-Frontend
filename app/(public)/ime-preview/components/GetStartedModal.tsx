@@ -10,7 +10,7 @@ export default function GetStartedModal({
   onContinue,
 }: {
   children: React.ReactNode;
-  onContinue: () => void;
+  onContinue: (data: { name: string; profession: string }) => void; // Adjusted the onContinue type
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [name, setName] = useState("");

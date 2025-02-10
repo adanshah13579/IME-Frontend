@@ -4,7 +4,11 @@ import { useState } from "react";
 import { Input } from "@nextui-org/input";
 import { Button } from "@nextui-org/button";
 
-export default function Rate({ onContinue }: { onContinue: (rate: number) => void }) {
+export default function Rate({
+  onContinue,
+}: {
+  onContinue: (rate: number) => void;
+}) {
   const [rate, setRate] = useState<number | string>(""); // State to hold the input value
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -13,7 +17,7 @@ export default function Rate({ onContinue }: { onContinue: (rate: number) => voi
 
   const handleContinue = () => {
     if (rate !== "") {
-      onContinue(Number(rate)); // Pass the input value to the parent component
+      onContinue(Number(rate)); // Pass rate to the parent component
     }
   };
 
@@ -24,6 +28,8 @@ export default function Rate({ onContinue }: { onContinue: (rate: number) => voi
         <p className="text-center">
           We’ll use A.I. to match you to the perfect Employer or Lawyer.
         </p>
+
+        {/* Rate Input */}
         <Input
           type="number"
           value={rate}
@@ -38,6 +44,7 @@ export default function Rate({ onContinue }: { onContinue: (rate: number) => voi
             </div>
           }
         />
+
         {/* Continue Button */}
         <Button
           onClick={handleContinue} // Call handleContinue when clicked

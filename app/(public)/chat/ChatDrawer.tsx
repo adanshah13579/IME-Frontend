@@ -8,18 +8,18 @@ interface Chat {
   _id: string;
   name: string;
   image?: string;
-  lastMessage: string;
+  lastMessage?: string;
   lastMessageTime?: string;
 }
 
 interface ChatDrawerProps {
-  setChatState: (chatId: string) => void;
+  setChatState: (id: string) => void;
   recentChats: Chat[];
   setname: (name: string) => void;
 }
 
 const ChatDrawer: React.FC<ChatDrawerProps> = ({ setChatState, recentChats, setname }) => {
-  const [expandDirect, setExpandDirect] = useState<boolean>(false);
+  const [expandDirect, setExpandDirect] = useState(false);
   const [activeChat, setActiveChat] = useState<string | null>(null);
 
   const handleChatSelection = (chat: Chat) => {
@@ -28,7 +28,7 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ setChatState, recentChats, setn
     setname(chat.name);
   };
 
-  const truncateMessage = (message: string, maxLength = 30): string => {
+  const truncateMessage = (message?: string, maxLength = 30) => {
     if (message && message.length > maxLength) {
       return message.substring(0, maxLength) + "...";
     }
@@ -39,8 +39,8 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ setChatState, recentChats, setn
     <Box
       sx={{
         width: {
-          xs: "100%", // Full width on small screens
-          sm: 320, // Fixed width for larger screens
+          xs: "100%",
+          sm: 320,
         },
         height: "100vh",
         borderRadius: "10px",
@@ -102,7 +102,7 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ setChatState, recentChats, setn
                     {chat.lastMessageTime ? formatDistanceToNow(new Date(chat.lastMessageTime)) + " ago" : ""}
                   </Typography>
                 </Box>
-
+                
                 <Typography variant="body2" sx={{ fontSize: "14px", color: "grey", textAlign: "left", marginTop: "4px" }}>
                   {(() => {
                     try {

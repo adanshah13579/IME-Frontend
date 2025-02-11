@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { Document, Page as PdfPage, pdfjs } from "react-pdf"; // Renamed Page to PdfPage
 import { FaDownload } from "react-icons/fa";
 import { useParams } from "next/navigation";
 import { Image } from "@nextui-org/image";
@@ -10,9 +9,6 @@ import GetStarted from "./components/GetStarted";
 import Rate from "./components/Rate";
 import Schedule from "./components/Schedule";
 import { baseuri } from "@/app/Api/baseuri";
-
-// Ensure PDF.js worker is loaded for proper rendering
-pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 export default function Page() {
   const { slug } = useParams(); // Get doctorSlug from params
@@ -26,11 +22,8 @@ export default function Page() {
     const fetchDoctorProfile = async () => {
       try {
         const res = await axios.get(`${baseuri}/api/doctor/getprofile/${slug}`);
-        const fileUrl = res.data?.file; 
-       
+        const fileUrl = res.data?.file;
 
-
-        
         if (fileUrl) {
           setPdfFile(fileUrl);
         } else {
@@ -93,7 +86,7 @@ export default function Page() {
   return (
     <main className="pb-8 bg-white dark:bg-gray-900 lg:pb-0 antialiased">
       <div className="flex relative z-20 justify-between px-4 mx-auto max-w-screen-2xl bg-white rounded dark:bg-gray-900">
-        <article className="xl:w-[900px] w-[900px] max-w-none format format-sm sm:format-base lg:format-lg format-blue dark:format-invert">
+        <article className="xl:w-[900px] w-[900px]">
           <Image alt="Card background" className="object-cover rounded-xl" src="/previewimeimg.png" />
 
           {mode === "no_acc" && <GetStarted onContinue={handleUserData} />}
@@ -103,7 +96,7 @@ export default function Page() {
 
         {/* Sidebar for Sample Report */}
         <aside className="hidden xl:block" aria-labelledby="sidebar-label">
-          <div className="xl:w-[380px] h-full sticky top-6">
+          <div className="xl:w-[380px] h-[20%] sticky top-6">
             <h3 id="sidebar-label" className="sr-only">Sidebar</h3>
             <div className="w-full h-full border-2 rounded-xl p-4 space-y-4">
               <h4 className="text-xl font-semibold text-gray-900 dark:text-white">Sample Report</h4>
@@ -112,18 +105,10 @@ export default function Page() {
               {error && <p className="text-red-500">{error}</p>}
 
               {pdfFile && (
-                <div>
-                  {/* Display PDF */}
-                  <Document file={pdfFile} className="border rounded-md">
-                    <PdfPage pageNumber={1} renderTextLayer={false} renderAnnotationLayer={false} />
-                  </Document>
-
-                  {/* Download Button */}
-                  <a href={pdfFile} download className="mt-4 flex items-center gap-2 text-blue-600 hover:text-blue-800">
-                    <FaDownload />
-                    <span>Download Report</span>
-                  </a>
-                </div>
+                <a href={pdfFile} download className="mt-4 flex items-center gap-2 text-blue-600 hover:text-blue-800">
+                  <FaDownload />
+                  <span>Download My Report</span>
+                </a>
               )}
             </div>
           </div>

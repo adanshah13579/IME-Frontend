@@ -1,4 +1,4 @@
-"use client";
+'use client'
 import { Box, List, ListItem, Typography, IconButton } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
@@ -92,15 +92,15 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ setChatState, recentChats, setn
                 onClick={() => handleChatSelection(chat)}
               >
                 <img
-                  src={chat.image || "/default-avatar.png"}
-                  alt={chat.name}
+                  src={ "https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg"} // Using static image placeholder
+                  alt={chat.name || "User"} // Using static name placeholder
                   style={{ width: 47, height: 47, borderRadius: "50%", marginRight: 5 }}
                 />
 
                 <Box sx={{ display: "flex", flexDirection: "column", width: "100%" }}>
                   <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                     <Typography variant="body2" sx={{ fontSize: { xs: "14px", sm: "16px" }, fontWeight: 500 }}>
-                      {chat.name}
+                      { "Ali"}
                     </Typography>
                     <Typography variant="body2" sx={{ fontSize: "12px", color: "grey" }}>
                       {chat.lastMessageTime ? formatDistanceToNow(new Date(chat.lastMessageTime)) + " ago" : ""}

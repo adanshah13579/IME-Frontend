@@ -1,88 +1,54 @@
+'use client'
+
 import React, { useEffect, useState } from "react";
 import { Box, Typography, IconButton } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import ChatMessage from "./Chatmessage";
-import Commentbox from "./Commentbox";
-import { io, Socket } from "socket.io-client";
-import Cookies from "js-cookie";
+import ChatMessage from "./ChatMessage";
+import Commentbox from "./CommentBox";
 import { formatDistanceToNow } from "date-fns";
 import OfferCard from "./offerdetails";
 
-interface SelectedUser {
-  id: string;
-  name?: string;
-}
-
 interface ChatboxProps {
   setChatState: () => void;
-  selectedUser: SelectedUser | null;
+  selectedUser: { id: string } | null;
   name: { name?: string };
+  socket: any;
 }
 
 interface Message {
-  senderType: "user" | "doctor";
+  senderType: string;
   createdAt: string;
-  message: string | object;
-  offerDetails?: object | null;
-  offerId?: string | null;
+  message: string | any;
+  offerDetails: any | null;
+  offerId: string | null;
 }
 
-interface ReceivedMessage {
-  type: "recentChats" | "newChatMessage";
-  senderType: "user" | "doctor";
-  message: string;
-  senderId?: string;
-  createdAt?: string;
-  recentMessages?: {
-    recentMessages: Message[];
-    user: object;
-    doctor: object[];
-  };
-}
-
-const Chatbox: React.FC<ChatboxProps> = ({ setChatState, selectedUser, name }) => {
+const Chatbox: React.FC<ChatboxProps> = ({ setChatState, selectedUser, name, socket }) => {
   const [messages, setMessages] = useState<Message[]>([]);
-  const [socket, setSocket] = useState<Socket | null>(null);
-  const [userData, setUserData] = useState<object | null>(null);
-  const [doctorData, setDoctorData] = useState<object | null>(null);
-
-  const token = Cookies.get("token");
+  const [userData, setUserData] = useState<any>(null);
+  const [doctorData, setDoctorData] = useState<any>(null);
 
   useEffect(() => {
-    if (!selectedUser?.id) return;
+    if (!socket || !selectedUser?.id) return;
 
-    const newSocket: Socket = io(`ws://localhost:3001?token=${token}`, {
-      transports: ["websocket"],
-      forceNew: true,
-      reconnectionAttempts: 5,
-      timeout: 10000,
-      extraHeaders: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    console.log("Fetching recent messages for:", selectedUser.id);
+    socket.emit("get_recent_messages", { userId: selectedUser.id });
 
-    setSocket(newSocket);
+    const handleReceiveMessage = (data: any) => {
+      console.log("Received message data:", data);
 
-    newSocket.on("connect", () => {
-      console.log("Connected to WebSocket server");
-      newSocket.emit("get_recent_messages", { userId: selectedUser.id });
-    });
-
-    newSocket.on("receive_message", (data: ReceivedMessage) => {
-      console.log("Received message:", data);
-
-      if (data.type === "recentChats" && data.recentMessages) {
+      if (data.type === "recentChats") {
         const filteredMessages = data.recentMessages.recentMessages.filter(
-          (msg) => msg.senderType === "user" || msg.senderType === "doctor"
+          (msg: any) => msg.sender === selectedUser.id || msg.receiver === selectedUser.id
         );
 
         setUserData(data.recentMessages.user);
         setDoctorData(data.recentMessages.doctor[0]);
 
-        const formattedMessages = filteredMessages.map((msg) => {
-          let parsedOffer: object | null = null;
+        const formattedMessages: Message[] = filteredMessages.map((msg: any) => {
+          let parsedOffer = null;
 
-          if (typeof msg.message === "string") {
+          if (msg.typeOfMessage === "offer" && msg.message) {
             try {
               parsedOffer = JSON.parse(msg.message);
             } catch (err) {
@@ -93,7 +59,7 @@ const Chatbox: React.FC<ChatboxProps> = ({ setChatState, selectedUser, name }) =
           return {
             senderType: msg.senderType,
             createdAt: msg.createdAt
-              ? formatDistanceToNow(new Date(msg.createdAt))
+              ? formatDistanceToNow(new Date(msg.createdAt), { addSuffix: true })
               : "Just now",
             message: parsedOffer ? parsedOffer : msg.message,
             offerDetails: parsedOffer || null,
@@ -101,11 +67,11 @@ const Chatbox: React.FC<ChatboxProps> = ({ setChatState, selectedUser, name }) =
           };
         });
 
+        console.log("Updating messages state:", formattedMessages);
         setMessages(formattedMessages);
-      } 
-      
-      // Handle new real-time messages
-      else if (data.type === "newChatMessage") {
+      } else if (data.type === "newChatMessage") {
+        console.log("New message received:", data);
+
         const newMessage: Message = {
           senderType: data.senderType,
           createdAt: formatDistanceToNow(new Date(), { addSuffix: true }),
@@ -116,83 +82,36 @@ const Chatbox: React.FC<ChatboxProps> = ({ setChatState, selectedUser, name }) =
 
         setMessages((prevMessages) => [...prevMessages, newMessage]);
       }
-    });
+    };
 
-    newSocket.on("offer_sent", (data: { offerDetails: object; offerId: string }) => {
-      console.log("Offer sent confirmation received:", data);
-
-      const newOfferMessage: Message = {
-        senderType: "user",
-        createdAt: formatDistanceToNow(new Date(), { addSuffix: true }),
-        message: data.offerDetails,
-        offerDetails: data.offerDetails,
-        offerId: data.offerId,
-      };
-
-      setMessages((prevMessages) => [...prevMessages, newOfferMessage]);
-    });
+    socket.on("receive_message", handleReceiveMessage);
 
     return () => {
-      newSocket.disconnect();
+      socket.off("receive_message", handleReceiveMessage);
     };
-  }, [token, selectedUser]);
+  }, [socket, selectedUser]);
 
   const sendMessage = (message: string | { message: string }) => {
-    if (!socket) {
-      console.error("Socket not initialized");
-      return;
-    }
-
+    if (!socket) return;
     const receiverId = selectedUser?.id;
     const messageContent = typeof message === "string" ? message : message.message;
     socket.emit("send_message", { receiverId, message: messageContent });
   };
 
-  const sendOffer = (offerData: object) => {
-    if (!socket) {
-      console.error("Socket not initialized");
-      return;
-    }
-
-    if (!selectedUser?.id) {
-      console.error("No user selected to send the offer to");
-      return;
-    }
-
-    const offerDetails = {
-      receiverId: selectedUser?.id,
-      offerData,
-    };
-
-    console.log("Sending offer:", offerDetails);
-    socket.emit("send_offer", offerDetails);
+  const sendOffer = (offerData: any) => {
+    if (!socket || !selectedUser?.id) return;
+    socket.emit("send_offer", { receiverId: selectedUser.id, offerData });
   };
 
   return (
-    <Box
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        height: "100vh",
-        backgroundColor: "white",
-      }}
-    >
-      <Box
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          padding: "16px",
-          borderBottom: "1px solid grey",
-        }}
-      >
+    <Box sx={{ display: "flex", flexDirection: "column", height: "100vh", backgroundColor: "white" }}>
+      <Box sx={{ display: "flex", alignItems: "center", padding: "16px", borderBottom: "1px solid grey" }}>
         <Box sx={{ display: { xs: "flex", sm: "none" }, marginRight: "10px" }}>
           <IconButton sx={{ color: "black" }} onClick={setChatState}>
             <ArrowBackIcon />
           </IconButton>
         </Box>
-        <Typography sx={{ flex: 1, fontSize: "20px", fontWeight: "bold" }}>
-          {name?.name || "User"}
-        </Typography>
+        <Typography sx={{ flex: 1, fontSize: "20px", fontWeight: "bold" }}>{name?.name || "User"}</Typography>
       </Box>
 
       <Box sx={{ flex: 1, padding: "20px 10px", overflowY: "auto" }}>
@@ -204,7 +123,7 @@ const Chatbox: React.FC<ChatboxProps> = ({ setChatState, selectedUser, name }) =
               {msg.offerDetails ? (
                 <OfferCard
                   offerDetails={msg.offerDetails}
-                  offerId={msg.offerId || ""}
+                  offerId={msg.offerId}
                   senderType={msg.senderType}
                   time={msg.createdAt}
                   selectedUserId={selectedUser?.id || ""}
@@ -214,7 +133,7 @@ const Chatbox: React.FC<ChatboxProps> = ({ setChatState, selectedUser, name }) =
                 <ChatMessage
                   senderType={msg.senderType}
                   time={msg.createdAt}
-                  message={msg.message as string}
+                  message={msg.message}
                   headDetails={msg.senderType === "user" ? userData : doctorData}
                 />
               )}
@@ -223,14 +142,7 @@ const Chatbox: React.FC<ChatboxProps> = ({ setChatState, selectedUser, name }) =
         )}
       </Box>
 
-      <Box
-        sx={{
-          position: "sticky",
-          bottom: 0,
-          padding: "10px 5px",
-          backgroundColor: "white",
-        }}
-      >
+      <Box sx={{ position: "sticky", bottom: 0, padding: "10px 5px", backgroundColor: "white" }}>
         <Commentbox sendMessage={sendMessage} sendOffer={sendOffer} />
       </Box>
     </Box>

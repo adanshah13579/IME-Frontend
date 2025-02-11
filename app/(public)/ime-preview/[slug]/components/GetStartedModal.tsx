@@ -44,14 +44,14 @@ export default function GetStartedModal({
             </div>
 
             {/* Google Login Button */}
-            <Button
+            {/* <Button
               onPress={handleGoogleLogin}
               variant="ghost"
               className="w-[80%] mx-auto mb-5 flex items-center justify-center bg-white-500 text-black no-underline"
             >
-              <GoogleIcon className="w-3 h-3 mr-3" /> {/* Google Icon */}
+              <GoogleIcon className="w-3 h-3 mr-3" /> 
               Continue with Google
-            </Button>
+            </Button> */}
 
             {/* Name Input */}
             <Input

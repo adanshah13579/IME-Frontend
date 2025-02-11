@@ -1,5 +1,4 @@
 'use client'
-
 import { Box } from "@mui/material";
 import { useState, useEffect } from "react";
 import { io, Socket } from "socket.io-client";
@@ -35,7 +34,6 @@ const ChatsystemPage: React.FC = () => {
   let userId = "";  // Default empty string for userId
 
   if (token) {
-    // Decode the JWT token manually
     const base64Url = token.split('.')[1];  // Get the payload part of the JWT token
     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');  // Fix URL encoding
 
@@ -46,7 +44,6 @@ const ChatsystemPage: React.FC = () => {
   const userType = "user";
 
 
-  // Automatically select the doctor if a doctorId is passed
   useEffect(() => {
     if (doctorId && !selectedUser) {
       setSelectedUser({ id: doctorId });
@@ -57,7 +54,6 @@ const ChatsystemPage: React.FC = () => {
   useEffect(() => {
     if (!token) return;
 
-    // Initialize socket connection
     const newSocket: Socket = io("ws://localhost:3001?token=" + token, {
       transports: ["websocket"],
       forceNew: true,
@@ -80,8 +76,6 @@ const ChatsystemPage: React.FC = () => {
     newSocket.on("receive_message", (data: { type: string; chatlist: Chat[] }) => {
       console.log("Received chatlist data:", data);  // Log the received chatlist
       if (data.type === "chatlist") {
-        console.log("Tahir "+ data);
-        
         const formattedChats = data.chatlist.map((chat) => ({
           _id: chat._id,
           name: chat.name,
@@ -89,7 +83,7 @@ const ChatsystemPage: React.FC = () => {
           lastMessage: chat.lastMessage,
           lastMessageTime: chat.lastMessageTime,
         }));
-        setRecentChats(formattedChats);  // Update state with the received chat list
+        setRecentChats(formattedChats); 
       }
     });
 
@@ -163,6 +157,7 @@ const ChatsystemPage: React.FC = () => {
             setChatState={() => setChatOpen(!chatOpen)}
             selectedUser={selectedUser}
             name={name}
+            socket={socket}  // Pass the socket connection here
           />
         )}
       </Box>
